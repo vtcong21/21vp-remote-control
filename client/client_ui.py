@@ -40,6 +40,9 @@ class ClientUI(Client):
 
     def quit_button_click(self):
         self.disconnect_from_server()
+        if(self.keyloggerUI):
+            self.keyloggerUI.stop_keylogger()
+        
         self.window.quit()
     def run(self):
         self.window.mainloop()
@@ -79,72 +82,6 @@ class ClientUI(Client):
         self.keyloggerUI = KeyloggerUI(self.socket, self.window)
     def take_screenshot_button_click(self):
         self.screenshotUI = ScreenshotUI(self.socket, self.window)
-    #     # Gửi yêu cầu chụp màn hình tới server
-    #     self.send_message("screenshot")
-    #     # Nhận dữ liệu hình ảnh đã chụp từ server
-    #     self.screenshot_data = self.receive_screenshot()
-    #     if self.screenshot_data:
-    #         try:
-    #             screenshot = Image.open(BytesIO(self.screenshot_data))
-
-    #             # Thay đổi kích thước hình ảnh để thu nhỏ
-    #             width, height = screenshot.size
-    #             new_width = 400  # Độ rộng mới
-    #             new_height = (height * new_width) // width
-    #             screenshot.thumbnail((new_width, new_height))
-
-    #             # Tạo cửa sổ mới để hiển thị hình ảnh
-    #             screenshot_window = tk.Toplevel(self.window)
-    #             screenshot_window.title("Screenshot")
-
-    #             # Tạo một Frame trong cửa sổ mới để bố trí hình ảnh
-    #             frame = tk.Frame(screenshot_window)
-    #             frame.pack()
-
-    #             # Hiển thị hình ảnh thu nhỏ trong cửa sổ mới
-    #             self.screenshot_image = ImageTk.PhotoImage(screenshot)
-    #             screenshot_label = tk.Label(frame, image=self.screenshot_image)
-    #             screenshot_label.grid(row=0, column=0)
-
-            
-    #             # Tạo nút "Chụp" và "Lưu" trong cửa sổ mới
-    #             capture_button = tk.Button(frame, text="Chụp", command=lambda: self.capture_screenshot(screenshot_window))
-    #             save_button = tk.Button(frame, text="Lưu", command=self.save_screenshot)  # Thay đổi ở đây
-    #             capture_button.grid(row=1, column=0)
-    #             save_button.grid(row=1, column=1)
-
-
-    #         except Exception as e:
-    #             print(f"Lỗi khi hiển thị hình ảnh: {str(e)}")
-
-    # def capture_screenshot(self, screenshot_window):
-    #     # Gửi lại yêu cầu chụp màn hình để cập nhật hình ảnh
-    #     self.send_message("screenshot")
-        
-    #     # Nhận dữ liệu hình ảnh đã chụp từ server
-    #     self.screenshot_data = self.receive_screenshot()
-    #     if self.screenshot_data:
-    #         try:
-    #             screenshot = Image.open(BytesIO(self.screenshot_data))
-
-    #             # Cập nhật hình ảnh hiển thị trong cửa sổ chụp màn hình
-    #             self.screenshot_image = ImageTk.PhotoImage(screenshot)
-    #             screenshot_window.configure(image=self.screenshot_image)
-
-    #         except Exception as e:
-    #             print(f"Lỗi khi hiển thị hình ảnh: {str(e)}")
-
-
-    # def save_screenshot(self):
-    #     # Lưu hình ảnh đã chụp vào tệp
-    #     file_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG files", "*.png")])
-    #     if file_path:
-    #         try:
-    #             with open(file_path, "wb") as file:
-    #                 file.write(self.screenshot_data)
-    #                 messagebox.showinfo("Thông báo", "Hình ảnh đã được lưu thành công.")
-    #         except Exception as e:
-    #             messagebox.showerror("Lỗi", f"Lỗi khi lưu hình ảnh: {str(e)}")
     def shutdown_button_click(self):
         pass
     def processes_button_click(self):

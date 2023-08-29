@@ -64,7 +64,7 @@ class ClientUI(Client):
         self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click)
         self.keystroke_button.pack()
         #shutdown
-        self.shutdown_button = tk.Button(self.window, text="Shutdown")
+        self.shutdown_button = tk.Button(self.window, text="Shutdown", command=self.shutdown_button_click)
         self.shutdown_button.pack()
         #screenshot
         self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click)
@@ -72,22 +72,28 @@ class ClientUI(Client):
         #quit
         self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click)
         self.quit_button.pack()
-    def running_app_button_click(self):
-        pass
-    def shutdown_button_click(self):
-        pass
     def quit_button_click(self):
         pass
     def keystroke_button_click(self):
         self.keyloggerUI = KeyloggerUI(self.socket, self.window)
     def take_screenshot_button_click(self):
         self.screenshotUI = ScreenshotUI(self.socket, self.window)
-    def shutdown_button_click(self):
+    def running_app_button_click(self):
         pass
+    def shutdown_button_click(self):
+        self.send_message("shutdown")
     def processes_button_click(self):
         pass
-    def apps_button_click(self):
-        pass
+    def send_message(self, message):
+        if not self.socket:
+            print("Not connected to the server.")
+            return
+        try:
+            # Send a message to the server
+            self.socket.sendall(message.encode())
+            print("Message sent.")
+        except OSError:
+            print("Failed to send the message.")
 
 # Script chạy
 if __name__ == "__main__":

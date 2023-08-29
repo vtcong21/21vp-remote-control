@@ -15,6 +15,7 @@ class ClientUI(Client):
         self.window.geometry("400x300")
         self.keyloggerUI = None
         self.screenshotUI = None
+        self.processUI = None
 
 
         self.server_ip_label = tk.Label(self.window, text="Enter IP Address:")
@@ -84,10 +85,7 @@ class ClientUI(Client):
     def shutdown_button_click(self):
         self.send_message("shutdown")
     def processes_button_click(self):
-        try:
-            self.processUI = ProcessUI(self.socket, self.window)
-        except:
-            messagebox.showinfo("Error !!!", "Lỗi kết nối ")
+        self.processUI = ProcessUI(self.socket, self.window)
 
     def receive_message(self):
         # Triển khai logic nhận dữ liệu từ máy chủ ở đây

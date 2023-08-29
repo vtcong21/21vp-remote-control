@@ -115,6 +115,4 @@ class Keylogger:
             char = char.upper()
         else:
             char = char.lower()
-       
-
         return char

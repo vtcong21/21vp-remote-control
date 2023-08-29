@@ -81,10 +81,6 @@ class Server:
             client_socket.sendall(str(len(screenshot)).encode())  # Gửi kích thước trước
             client_socket.sendall(screenshot)  # Gửi dữ liệu hình ảnh
             return None  # Không cần trả về gì ở đây
-        elif request == "shutdown":
-            shutdown_window = ServerShutdownWindow(self)
-            shutdown_window.start()
-            return "Server đã tắt"
         elif request == "apps":
             apps = self.get_running_applications()
             return json.dumps(apps)

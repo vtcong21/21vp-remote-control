@@ -16,7 +16,6 @@ class ServerUI:
         self.start_button.config(state="disabled")  # Disable nút Start khi server đã được khởi động
         server_thread = threading.Thread(target=self.server.start_server)
         server_thread.start()
-
         messagebox.showinfo("Server", "Server đã được khởi động!")
 
     def close_window(self):

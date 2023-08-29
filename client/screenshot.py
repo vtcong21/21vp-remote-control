@@ -1,19 +1,18 @@
-class Keylogger():
+class Screenshot():
     def __init__(self, socket, window):
         self.window = window
         self.socket = socket
-        self.keylog_text = None
-        self.keystroke_window = None
         
-    def start_keylogger(self):
+        
+    def recive_screenshot(self):
         pass
 
-    def stop_keylogger(self):
+    def capture_screenshot(self):
         pass
 
-    def print_keylog(self):
+    def recive_screenshot(self):
         pass
-    def clear_keylog(self):
+    def save_screenshot(self):
         pass
 
     def send_message(self, message):

@@ -1,8 +1,6 @@
 import socket
-import tkinter as tk
 from PIL import Image
 from io import BytesIO
-from keylogger import Keylogger
 class Client:
     def __init__(self):
         self.server_ip = ""
@@ -37,7 +35,6 @@ class Client:
         # Ngắt kết nối với server
         self.socket.close()
         print("Đã ngắt kết nối với server.")
-
 
     def request_screenshot(self):
         self.send_message("screenshot")

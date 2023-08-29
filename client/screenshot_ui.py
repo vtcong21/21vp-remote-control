@@ -36,14 +36,21 @@ class ScreenshotUI(Screenshot):
                 # Hiển thị hình ảnh thu nhỏ trong cửa sổ mới
                 self.screenshot_image = ImageTk.PhotoImage(self.screenshot_img)
                 self.screenshot_label = tk.Label(self.frame, image=self.screenshot_image)
-                self.screenshot_label.grid(row=0, column=0)
+                self.screenshot_label.grid(row=0, column=0, columnspan=2)  # Hiển thị hình ảnh ở hàng 0, cột 0 và 1
 
-            
                 # Tạo nút "Chụp" và "Lưu" trong cửa sổ mới
                 capture_button = tk.Button(self.frame, text="Chụp", command=lambda: self.capture_screenshot())
-                save_button = tk.Button(self.frame, text="Lưu", command=self.save_screenshot)  # Thay đổi ở đây
-                capture_button.grid(row=1, column=0)
-                save_button.grid(row=1, column=1)
+                save_button = tk.Button(self.frame, text="Lưu", command=self.save_screenshot)
+
+                # Đặt cùng độ rộng cho cả nút "Chụp" và nút "Lưu"
+                capture_button.grid(row=1, column=0, padx=10, pady=10)
+                save_button.grid(row=1, column=1, padx=10, pady=10)
+
+                # Đặt các cột có cùng độ rộng để nút "Chụp" và nút "Lưu" có kích thước bằng nhau
+                self.frame.columnconfigure(0, weight=1)
+                self.frame.columnconfigure(1, weight=1)
+
+                
 
 
             except Exception as e:

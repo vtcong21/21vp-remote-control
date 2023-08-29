@@ -8,6 +8,7 @@ import subprocess
 from PIL import ImageGrab  # Để chụp màn hình
 from keylogger import Keylogger
 from shutdown import ServerShutdownWindow
+import psutil
 
 class Server:
     def __init__(self):

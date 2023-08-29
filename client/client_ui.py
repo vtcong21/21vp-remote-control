@@ -15,6 +15,7 @@ class ClientUI(Client):
         self.window.geometry("400x300")
         self.keyloggerUI = None
         self.screenshotUI = None
+        self.processUI = None
 
 
         self.server_ip_label = tk.Label(self.window, text="Enter IP Address:")
@@ -56,51 +57,50 @@ class ClientUI(Client):
             self.server_ip_label.destroy()
             self.server_ip_entry.destroy()
             self.connect_button.destroy()
-        self.process_button = tk.Button(self.window, text="Running Processes",  command=self.processes_button_click)
-        self.process_button.pack()
-        #running apps
-        self.app_button = tk.Button(self.window, text="Running Applications", command= self.running_app_button_click)
-        self.app_button.pack()
-        #keylog
-        self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click)
-        self.keystroke_button.pack()
-        #shutdown
-        self.shutdown_button = tk.Button(self.window, text="Shutdown", command=self.shutdown_button_click)
-        self.shutdown_button.pack()
-        #screenshot
-        self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click)
-        self.screenshot_button.pack()
-        #quit
-        self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click)
-        self.quit_button.pack()
+
+            self.process_button = tk.Button(self.window, text="Running\nProcesses", command=self.processes_button_click, width=8, height=10)
+            self.process_button.place(relx=0.05, rely=0.4)  # Điều chỉnh vị trí theo tọa độ tương đối
+
+            self.app_button = tk.Button(self.window, text="Running Applications", command=self.running_app_button_click, width=27, height=2)
+            self.app_button.place(relx=0.240, rely=0.4)
+
+            self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click, width=8, height=10)
+            self.keystroke_button.place(relx=0.765, rely=0.4)
+
+            self.shutdown_button = tk.Button(self.window, text="Shutdown", command=self.shutdown_button_click, width=10, height=2)
+            self.shutdown_button.place(relx=0.245, rely=0.58)
+
+            self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click, width=27, height=2)
+            self.screenshot_button.place(relx=0.240, rely=0.795)
+
+            self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click, width=10, height=2)
+            self.quit_button.place(relx=0.535, rely=0.58)
     def quit_button_click(self):
         pass
     def keystroke_button_click(self):
         self.keyloggerUI = KeyloggerUI(self.socket, self.window)
     def take_screenshot_button_click(self):
         self.screenshotUI = ScreenshotUI(self.socket, self.window)
+    def apps_button_click(self):
+        pass
     def running_app_button_click(self):
         pass
     def shutdown_button_click(self):
         self.send_message("shutdown")
     def processes_button_click(self):
-        try:
-            self.processUI = ProcessUI(self.socket, self.window)
-        except:
-            messagebox.showinfo("Error !!!", "Lỗi kết nối ")
+        self.processUI = ProcessUI(self.socket, self.window)
 
-    def receive_message(self):
-        # Triển khai logic nhận dữ liệu từ máy chủ ở đây
-        # Ví dụ: Sử dụng socket để nhận dữ liệu từ máy chủ
+    def send_message(self, message):
+        if not self.socket:
+            print("Not connected to the server.")
+            return
         try:
-            received_data = self.socket.recv(1024)
-            return received_data.decode('utf-8')
-        except Exception as e:
-            print(f"Lỗi khi nhận dữ liệu: {str(e)}")
-            return None
+            # Send a message to the server
+            self.socket.sendall(message.encode())
+            print("Message sent.")
+        except OSError:
+            print("Failed to send the message.")
 
-    def apps_button_click(self):
-        pass
 
 # Script chạy
 if __name__ == "__main__":

@@ -79,6 +79,8 @@ class ClientUI(Client):
         self.keyloggerUI = KeyloggerUI(self.socket, self.window)
     def take_screenshot_button_click(self):
         self.screenshotUI = ScreenshotUI(self.socket, self.window)
+    def apps_button_click(self):
+        pass
     def running_app_button_click(self):
         pass
     def shutdown_button_click(self):
@@ -89,18 +91,17 @@ class ClientUI(Client):
         except:
             messagebox.showinfo("Error !!!", "Lỗi kết nối ")
 
-    def receive_message(self):
-        # Triển khai logic nhận dữ liệu từ máy chủ ở đây
-        # Ví dụ: Sử dụng socket để nhận dữ liệu từ máy chủ
+    def send_message(self, message):
+        if not self.socket:
+            print("Not connected to the server.")
+            return
         try:
-            received_data = self.socket.recv(1024)
-            return received_data.decode('utf-8')
-        except Exception as e:
-            print(f"Lỗi khi nhận dữ liệu: {str(e)}")
-            return None
+            # Send a message to the server
+            self.socket.sendall(message.encode())
+            print("Message sent.")
+        except OSError:
+            print("Failed to send the message.")
 
-    def apps_button_click(self):
-        pass
 
 # Script chạy
 if __name__ == "__main__":

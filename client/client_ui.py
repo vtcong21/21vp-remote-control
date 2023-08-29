@@ -55,23 +55,24 @@ class ClientUI(Client):
             self.server_ip_label.destroy()
             self.server_ip_entry.destroy()
             self.connect_button.destroy()
-        self.process_button = tk.Button(self.window, text="Running Processes")
-        self.process_button.pack()
-        #running apps
-        self.app_button = tk.Button(self.window, text="Running Applications", command= self.running_app_button_click)
-        self.app_button.pack()
-        #keylog
-        self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click)
-        self.keystroke_button.pack()
-        #shutdown
-        self.shutdown_button = tk.Button(self.window, text="Shutdown", command=self.shutdown_button_click)
-        self.shutdown_button.pack()
-        #screenshot
-        self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click)
-        self.screenshot_button.pack()
-        #quit
-        self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click)
-        self.quit_button.pack()
+
+            self.process_button = tk.Button(self.window, text="Running\nProcesses", command=self.processes_button_click, width=8, height=10)
+            self.process_button.place(relx=0.05, rely=0.4)  # Điều chỉnh vị trí theo tọa độ tương đối
+
+            self.app_button = tk.Button(self.window, text="Running Applications", command=self.running_app_button_click, width=27, height=2)
+            self.app_button.place(relx=0.240, rely=0.4)
+
+            self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click, width=8, height=10)
+            self.keystroke_button.place(relx=0.765, rely=0.4)
+
+            self.shutdown_button = tk.Button(self.window, text="Shutdown", command=self.shutdown_button_click, width=10, height=2)
+            self.shutdown_button.place(relx=0.245, rely=0.58)
+
+            self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click, width=27, height=2)
+            self.screenshot_button.place(relx=0.240, rely=0.795)
+
+            self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click, width=10, height=2)
+            self.quit_button.place(relx=0.535, rely=0.58)
     def quit_button_click(self):
         pass
     def keystroke_button_click(self):

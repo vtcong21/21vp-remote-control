@@ -77,7 +77,8 @@ class ClientUI(Client):
             self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click, width=10, height=2)
             self.quit_button.place(relx=0.535, rely=0.58)
     def quit_button_click(self):
-        pass
+        if messagebox.askokcancel("Đóng Client", "Bạn có chắc chắn muốn đóng Client?"):
+            self.window.destroy()
     def keystroke_button_click(self):
         self.keyloggerUI = KeyloggerUI(self.socket, self.window)
     def take_screenshot_button_click(self):

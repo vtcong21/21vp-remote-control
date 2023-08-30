@@ -22,6 +22,7 @@ class ClientUI(Client):
         self.server_ip_label.pack()
 
         self.server_ip_entry = tk.Entry(self.window)
+        self.server_ip_entry.insert(0, "127.0.0.1")
         self.server_ip_entry.pack()
 
         self.connect_button = tk.Button(self.window, text="Connect", command=self.connect_button_click)

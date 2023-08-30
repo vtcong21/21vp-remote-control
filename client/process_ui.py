@@ -11,18 +11,18 @@ class ProcessUI(Processes):
 
         # Tạo cửa sổ mới để hiển thị chức năng
         self.process_window = tk.Toplevel(self.window)
-        self.process_window.title("Process")
+        self.process_window.geometry("400x80")
+        self.process_window.title("List Process")
 
         # Tạo các nút "Kill", "Xem danh sách", "Xóa" và "Bắt đầu"
-        kill_button = tk.Button(self.process_window, text="Kill")
-        view_list_button = tk.Button(self.process_window, text="Show list", command=self.show_list_button_click)
-        delete_button = tk.Button(self.process_window, text="Delete")
-        start_button = tk.Button(self.process_window, text="Start")
-        
-        kill_button.pack()
-        view_list_button.pack()
-        delete_button.pack()
-        start_button.pack()
+        self.kill_button = tk.Button(self.process_window, text="Kill")
+        self.kill_button.place(relx=0.05, rely=0.1, relwidth=0.21, relheight=0.8)
+        self.view_list_button = tk.Button(self.process_window, text="Show\nlist", command=self.show_list_button_click)
+        self.view_list_button.place(relx=0.28, rely=0.1, relwidth=0.21, relheight=0.8)
+        self.delete_button = tk.Button(self.process_window, text="Clear")
+        self.delete_button.place(relx=0.51, rely=0.1, relwidth=0.21, relheight=0.8)
+        self.start_button = tk.Button(self.process_window, text="Start")
+        self.start_button.place(relx=0.74, rely=0.1, relwidth=0.21, relheight=0.8)
 
     
     def show_list_button_click(self):

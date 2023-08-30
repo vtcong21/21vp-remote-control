@@ -312,27 +312,19 @@ class Server:
 
     def handle_processus_request(self, client_socket):
         try:
-            print("Đang nhận dữ liệu registry patch từ client...")
-            registry_data = b""
+            processes = self.get_running_processus()
+            response = json.dumps(processes)
 
-            # Nhận và ghi dữ liệu từ client
-            while True:
-                chunk = client_socket.recv(1024)
-                if not chunk:
-                    break
-                registry_data += chunk
+            # Chia dữ liệu thành các gói tin có kích thước nhỏ
+            chunk_size = 1024  # Kích thước mỗi gói tin
+            chunks = [response[i:i+chunk_size] for i in range(0, len(response), chunk_size)]
 
-            # Lưu dữ liệu vào tệp tin registry
-            reg_file_path = os.path.join(self.cache_path, "registry.reg")
-            with open(reg_file_path, "wb") as reg_file:
-                reg_file.write(registry_data)
+            # Gửi từng gói tin cho client
+            for chunk in chunks:
+                self.send_packet(client_socket, chunk)
 
-            print("Đã nhận và lưu registry patch thành công.")
-
-            # Sử dụng subprocess để chạy regedit và áp dụng thay đổi
-            subprocess.Popen(['regedit', '/s', reg_file_path], shell=True)
-
-            return "Registry patch applied successfully."
+            # Gửi tín hiệu "done" để đánh dấu kết thúc dữ liệu
+            self.send_packet(client_socket, "done")
 
         except Exception as e:
             error_message = str(e)

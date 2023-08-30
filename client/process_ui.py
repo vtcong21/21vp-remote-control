@@ -59,14 +59,14 @@ class ProcessUI(Processes):
         self.kill_process_window.geometry("390x90")
         self.kill_process_window.title("Kill Process")
 
-        self.server_ip_label = tk.Label(self.kill_process_window, text="Enter Process ID:")
-        self.server_ip_label.pack()
+        self.process_id_label = tk.Label(self.kill_process_window, text="Enter Process ID:")
+        self.process_id_label.pack()
 
-        self.server_ip_entry = tk.Entry(self.kill_process_window)
-        self.server_ip_entry.pack()
+        self.process_id_entry = tk.Entry(self.kill_process_window)
+        self.process_id_entry.pack()
 
-        self.connect_button = tk.Button(self.kill_process_window, text="Kill", command=self.kill_process_button_click)
-        self.connect_button.pack()
+        self.kill_process_button = tk.Button(self.kill_process_window, text="Kill", command=self.send_kill_request)
+        self.kill_process_button.pack()
 
     def clear_button_click(self):
         pass
@@ -77,20 +77,26 @@ class ProcessUI(Processes):
         self.start_process_window.geometry("390x90")
         self.start_process_window.title("Start Process")
 
-        self.server_ip_label = tk.Label(self.start_process_window, text="Enter Process Name:")
-        self.server_ip_label.pack()
+        self.start_name_label = tk.Label(self.start_process_window, text="Enter Process Name:")
+        self.start_name_label.pack()
 
-        self.server_ip_entry = tk.Entry(self.start_process_window)
-        self.server_ip_entry.pack()
+        self.start_name_entry = tk.Entry(self.start_process_window)
+        self.start_name_entry.pack()
 
-        self.connect_button = tk.Button(self.start_process_window, text="Start", command=self.start_process_button_click)
-        self.connect_button.pack()
+        self.start_process_button = tk.Button(self.start_process_window, text="Start", command=self.send_start_request)
+        self.start_process_button.pack()
 
-    def kill_process_button_click(self):
-        pass
+    def send_kill_request(self):
+        process_id = self.process_id_entry.get()
+        if process_id:
+            # Gửi yêu cầu kết thúc quy trình đến máy chủ
+            self.send_message(f"kill {process_id}")
     
-    def start_process_button_click(self):
-        pass
+    def send_start_request(self):
+        start_id = self.start_name_entry.get()
+        if start_id:
+            # Gửi yêu cầu kết thúc quy trình đến máy chủ
+            self.send_message(f"kill {start_id}")
 
     def send_message(self, message):
             if not self.socket:

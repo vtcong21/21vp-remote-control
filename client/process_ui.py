@@ -1,4 +1,4 @@
-from process import Processes
+# from process import Processes
 import tkinter as tk
 # from tkinter import messagebox, filedialog
 # from PIL import Image, ImageTk

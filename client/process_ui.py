@@ -16,13 +16,13 @@ class ProcessUI(Processes):
         self.process_window.title("List Process")
 
         # Tạo các nút "Kill", "Xem danh sách", "Xóa" và "Bắt đầu"
-        self.kill_button = tk.Button(self.process_window, text="Kill", width=10, height=3)
+        self.kill_button = tk.Button(self.process_window, text="Kill", command=self.kill_button_click, width=10, height=3)
         self.kill_button.place(x=20, y=16)
         self.view_list_button = tk.Button(self.process_window, text="Show\nlist", command=self.show_list_button_click, width=10, height=3)
         self.view_list_button.place(x=110, y=16)
-        self.delete_button = tk.Button(self.process_window, text="Clear", width=10, height=3)
+        self.delete_button = tk.Button(self.process_window, text="Clear", command=self.clear_button_click, width=10, height=3)
         self.delete_button.place(x=200, y=16)
-        self.start_button = tk.Button(self.process_window, text="Start", width=10, height=3)
+        self.start_button = tk.Button(self.process_window, text="Start", command=self.start_button_click, width=10, height=3)
         self.start_button.place(x=290, y=16)
 
 
@@ -36,22 +36,61 @@ class ProcessUI(Processes):
         self.send_message("processus")
         self.process_data = self.receive_message()  # Thay đổi tên hàm theo tên thích hợp
 
-        # if self.process_data:
-            # try:
-                # process_list = json.loads(self.process_data)
-                # # Tạo đầu cột
-                # header_row = "ProcessName".ljust(30) + "PID".ljust(15) + "ThreadCount"
-                # self.process_listbox.insert(tk.END, header_row)
+        if self.process_data:
+            try:
+                self.process_list = json.loads(self.process_data)
+                # Tạo đầu cột
+                header_row = "ProcessName".ljust(30) + "PID".ljust(15) + "ThreadCount"
+                self.process_listbox.insert(tk.END, header_row)
                 
-                # for self.process_info in self.process_list:
-                #     self.process_name = self.process_info.get("ProcessName", "N/A")
-                #     self.process_id = str(self.process_info.get("PID", "N/A")).ljust(15)
-                #     self.thread_count = str(self.process_info.get("ThreadCount", "N/A"))
-                #     self.formatted_row = self.process_name.ljust(30) + self.process_id + self.thread_count
-                #     self.process_listbox.insert(tk.END, self.formatted_row)
+                for self.process_info in self.process_list:
+                    self.process_name = self.process_info.get("ProcessName", "N/A")
+                    self.process_id = str(self.process_info.get("PID", "N/A")).ljust(15)
+                    self.thread_count = str(self.process_info.get("ThreadCount", "N/A"))
+                    self.formatted_row = self.process_name.ljust(30) + self.process_id + self.thread_count
+                    self.process_listbox.insert(tk.END, self.formatted_row)
 
-            # except Exception as e:
-            #     print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
+            except Exception as e:
+                print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
+
+    def kill_button_click(self):
+        # Tạo cửa sổ mới
+        self.kill_process_window = tk.Toplevel(self.window)
+        self.kill_process_window.geometry("390x90")
+        self.kill_process_window.title("Kill Process")
+
+        self.server_ip_label = tk.Label(self.kill_process_window, text="Enter Process ID:")
+        self.server_ip_label.pack()
+
+        self.server_ip_entry = tk.Entry(self.kill_process_window)
+        self.server_ip_entry.pack()
+
+        self.connect_button = tk.Button(self.kill_process_window, text="Kill", command=self.kill_process_button_click)
+        self.connect_button.pack()
+
+    def clear_button_click(self):
+        pass
+
+    def start_button_click(self):
+        # Tạo cửa sổ mới
+        self.start_process_window = tk.Toplevel(self.window)
+        self.start_process_window.geometry("390x90")
+        self.start_process_window.title("Start Process")
+
+        self.server_ip_label = tk.Label(self.start_process_window, text="Enter Process Name:")
+        self.server_ip_label.pack()
+
+        self.server_ip_entry = tk.Entry(self.start_process_window)
+        self.server_ip_entry.pack()
+
+        self.connect_button = tk.Button(self.start_process_window, text="Start", command=self.start_process_button_click)
+        self.connect_button.pack()
+
+    def kill_process_button_click(self):
+        pass
+    
+    def start_process_button_click(self):
+        pass
 
     def send_message(self, message):
             if not self.socket:

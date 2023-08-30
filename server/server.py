@@ -91,8 +91,8 @@ class Server:
             apps = self.get_running_applications()
             return json.dumps(apps)
         elif request == "processus":
-            processes = self.get_running_processus()
-            return json.dumps(processes)
+            process_result = self.handle_processus_request(client_socket)
+            return "processing" 
         elif request.startswith("kill"):
             try:
                 _, pid_str = request.split(" ", 1)  # Tách lệnh và PID
@@ -155,6 +155,7 @@ class Server:
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return []
+        
     # running apps, same as process
     def get_running_applications(self):
         try:
@@ -182,7 +183,34 @@ class Server:
             print(f"Error: {e}")
             return []
 
-        
+    def handle_processus_request(self, client_socket):
+        try:
+            processes = self.get_running_processus()
+            response = json.dumps(processes)
+
+            # Chia dữ liệu thành các gói tin có kích thước nhỏ
+            chunk_size = 1024  # Kích thước mỗi gói tin
+            chunks = [response[i:i+chunk_size] for i in range(0, len(response), chunk_size)]
+
+            # Gửi từng gói tin cho client
+            for chunk in chunks:
+                self.send_packet(client_socket, chunk)
+
+            # Gửi tín hiệu "done" để đánh dấu kết thúc dữ liệu
+            self.send_packet(client_socket, "done")
+
+        except Exception as e:
+            error_message = str(e)
+            self.send_packet(client_socket, error_message)  # Gửi thông báo lỗi đến client
+
+        # finally:
+        #     client_socket.close()  # Đảm bảo đóng kết nối khi xong việc xử lý
+    
+    def send_packet(self, client_socket, packet):
+        try:
+            client_socket.send(packet.encode())
+        except Exception as e:
+            print(f"Error sending packet: {str(e)}")
 
 if __name__ == "__main__":
     server = Server()

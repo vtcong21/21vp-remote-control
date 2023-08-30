@@ -5,9 +5,12 @@ from server import Server
 class ServerUI:
     def __init__(self, root):
         self.root = root
+        self.root.title("Server") 
+        self.root.geometry("160x70") 
+
         self.server = Server()
         self.start_button = Button(root, text="Start Server", command=self.start_server)
-        self.start_button.pack()
+        self.start_button.place(relx=0.08, rely=0.11, relwidth=0.85, relheight=0.7)
 
         # Xử lý sự kiện đóng cửa sổ
         self.root.protocol("WM_DELETE_WINDOW", self.close_window)

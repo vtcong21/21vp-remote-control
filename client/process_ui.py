@@ -27,11 +27,10 @@ class ProcessUI(Processes):
 
 
     def show_list_button_click(self):
-        # self.process_window.geometry("400x200")
         self.process_window.geometry("390x350")
         
         self.process_listbox = tk.Listbox(self.process_window, width=58, height=14)
-        self.process_listbox.place(x=20, y=90)  # Đặt vị trí dựa trên tọa độ tương đối (0.1, 0.2)
+        self.process_listbox.place(x=20, y=90)  
 
         self.send_message("processus")
         self.process_data = self.receive_message()  # Thay đổi tên hàm theo tên thích hợp
@@ -56,38 +55,43 @@ class ProcessUI(Processes):
     def kill_button_click(self):
         # Tạo cửa sổ mới
         self.kill_process_window = tk.Toplevel(self.window)
-        self.kill_process_window.geometry("390x90")
+        self.kill_process_window.geometry("390x60")
         self.kill_process_window.title("Kill Process")
 
-        self.process_id_label = tk.Label(self.kill_process_window, text="Enter Process ID:")
-        self.process_id_label.pack()
-
-        self.process_id_entry = tk.Entry(self.kill_process_window)
-        self.process_id_entry.pack()
+        self.process_id_input = tk.Entry(self.kill_process_window)
+        self.process_id_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
+     
+        self.process_id_input.insert(0, "Enter Process ID")
+        self.process_id_input.config(fg="gray")  
+        self.process_id_input.bind("<FocusIn>", self.kill_on_entry_click)
+        self.process_id_input.bind("<FocusOut>", self.kill_on_focus_out)
 
         self.kill_process_button = tk.Button(self.kill_process_window, text="Kill", command=self.send_kill_request)
-        self.kill_process_button.pack()
+        self.kill_process_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
+
 
     def clear_button_click(self):
-        pass
+        self.process_listbox.delete(0, tk.END)
 
     def start_button_click(self):
         # Tạo cửa sổ mới
         self.start_process_window = tk.Toplevel(self.window)
-        self.start_process_window.geometry("390x90")
+        self.start_process_window.geometry("390x60")
         self.start_process_window.title("Start Process")
 
-        self.start_name_label = tk.Label(self.start_process_window, text="Enter Process Name:")
-        self.start_name_label.pack()
-
-        self.start_name_entry = tk.Entry(self.start_process_window)
-        self.start_name_entry.pack()
+        self.start_name_input = tk.Entry(self.start_process_window)
+        self.start_name_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
+     
+        self.start_name_input.insert(0, "Enter Process Name")
+        self.start_name_input.config(fg="gray")  
+        self.start_name_input.bind("<FocusIn>", self.start_on_entry_click)
+        self.start_name_input.bind("<FocusOut>", self.start_on_focus_out)
 
         self.start_process_button = tk.Button(self.start_process_window, text="Start", command=self.send_start_request)
-        self.start_process_button.pack()
+        self.start_process_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
 
     def send_kill_request(self):
-        process_id = self.process_id_entry.get()
+        process_id = self.process_id_input.get()
         if process_id:
             # Gửi yêu cầu kết thúc quy trình đến máy chủ
             self.send_message(f"kill {process_id}")
@@ -118,3 +122,23 @@ class ProcessUI(Processes):
         except Exception as e:
             print(f"Lỗi khi nhận dữ liệu: {str(e)}")
             return None
+    
+    def kill_on_entry_click(self, event):
+        if self.process_id_input.get() == "Enter Process ID":
+            self.process_id_input.delete(0, "end")  # Xóa nội dung hiện tại
+            self.process_id_input.config(fg="black")  # Đổi màu văn bản thành đen
+
+    def kill_on_focus_out(self, event):
+        if not self.process_id_input.get():
+            self.process_id_input.insert(0, "Enter Process ID")
+            self.process_id_input.config(fg="gray")
+    
+    def start_on_entry_click(self, event):
+        if self.start_name_input.get() == "Enter Process Name":
+            self.start_name_input.delete(0, "end")  # Xóa nội dung hiện tại
+            self.start_name_input.config(fg="black")  # Đổi màu văn bản thành đen
+
+    def start_on_focus_out(self, event):
+        if not self.start_name_input.get():
+            self.start_name_input.insert(0, "Enter Process Name")
+            self.start_name_input.config(fg="gray")

@@ -12,25 +12,31 @@ class ProcessUI(Processes):
 
         # Tạo cửa sổ mới để hiển thị chức năng
         self.process_window = tk.Toplevel(self.window)
-        self.process_window.geometry("390x90")
+        self.process_window.geometry("400x90")
         self.process_window.title("List Process")
 
         # Tạo các nút "Kill", "Xem danh sách", "Xóa" và "Bắt đầu"
-        self.kill_button = tk.Button(self.process_window, text="Kill", command=self.kill_button_click, width=10, height=3)
-        self.kill_button.place(x=20, y=16)
-        self.view_list_button = tk.Button(self.process_window, text="Show\nlist", command=self.show_list_button_click, width=10, height=3)
+        self.kill_button = tk.Button(self.process_window, text="Kill", command=self.kill_button_click, width=11, height=3)
+        self.kill_button.place(x=16, y=16)
+        self.view_list_button = tk.Button(self.process_window, text="Show\nlist", command=self.show_list_button_click, width=11, height=3)
         self.view_list_button.place(x=110, y=16)
-        self.delete_button = tk.Button(self.process_window, text="Clear", command=self.clear_button_click, width=10, height=3)
-        self.delete_button.place(x=200, y=16)
-        self.start_button = tk.Button(self.process_window, text="Start", command=self.start_button_click, width=10, height=3)
-        self.start_button.place(x=290, y=16)
+        self.delete_button = tk.Button(self.process_window, text="Clear", command=self.clear_button_click, width=11, height=3)
+        self.delete_button.place(x=204, y=16)
+        self.start_button = tk.Button(self.process_window, text="Start", command=self.start_button_click, width=11, height=3)
+        self.start_button.place(x=298, y=16)
 
 
     def show_list_button_click(self):
-        self.process_window.geometry("390x350")
+        self.process_window.geometry("400x350")
         
-        self.process_listbox = tk.Listbox(self.process_window, width=58, height=14)
-        self.process_listbox.place(x=20, y=90)  
+        self.process_listbox = tk.Listbox(self.process_window, width=61, height=15)
+        self.process_listbox.place(x=16, y=86)  
+
+        # Tạo một thanh cuộn dọc và liên kết nó với Listbox
+        scrollbar = tk.Scrollbar(self.process_window, command=self.process_listbox.yview)
+        scrollbar.place(x=370, y=86, height=14*18)  # Đặt vị trí và chiều cao tương ứng với Listbox
+        # Cài đặt thanh cuộn cho Listbox
+        self.process_listbox.config(yscrollcommand=scrollbar.set)
 
         self.send_message("processus")
         self.process_data = self.receive_message()  # Thay đổi tên hàm theo tên thích hợp

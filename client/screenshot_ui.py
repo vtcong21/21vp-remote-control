@@ -12,6 +12,8 @@ class ScreenshotUI(Screenshot):
         self.screenshot_image = None
         self.screenshot_data = None
 
+
+
     # Gửi yêu cầu chụp màn hình tới server
         self.send_message("screenshot")
         # Nhận dữ liệu hình ảnh đã chụp từ server
@@ -27,6 +29,7 @@ class ScreenshotUI(Screenshot):
 
                 # Tạo cửa sổ mới để hiển thị hình ảnh
                 self.screenshot_window = tk.Toplevel(self.window)
+                self.screenshot_window.geometry("420x285")
                 self.screenshot_window.title("Screenshot")
 
                 # Tạo một Frame trong cửa sổ mới để bố trí hình ảnh
@@ -36,21 +39,24 @@ class ScreenshotUI(Screenshot):
                 # Hiển thị hình ảnh thu nhỏ trong cửa sổ mới
                 self.screenshot_image = ImageTk.PhotoImage(self.screenshot_img)
                 self.screenshot_label = tk.Label(self.frame, image=self.screenshot_image)
-                self.screenshot_label.grid(row=0, column=0, columnspan=2)  # Hiển thị hình ảnh ở hàng 0, cột 0 và 1
+                self.screenshot_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10)  # Hiển thị hình ảnh ở hàng 0, cột 0 và 1
 
                 # Tạo nút "Chụp" và "Lưu" trong cửa sổ mới
-                capture_button = tk.Button(self.frame, text="Chụp", command=lambda: self.capture_screenshot())
-                save_button = tk.Button(self.frame, text="Lưu", command=self.save_screenshot)
+                # capture_button = tk.Button(self.frame, text="Chụp", command=lambda: self.capture_screenshot())
+                # save_button = tk.Button(self.frame, text="Lưu", command=self.save_screenshot)
+
+                capture_button = tk.Button(self.screenshot_window, text="Chụp", command=lambda:self.capture_screenshot(), width=33, height=1)
+                capture_button.place(x=10, y=245)
+                save_button = tk.Button(self.screenshot_window, text="Lưu", command=self.save_screenshot, width=19, height=1)
+                save_button.place(x=264, y=245)
 
                 # Đặt cùng độ rộng cho cả nút "Chụp" và nút "Lưu"
-                capture_button.grid(row=1, column=0, padx=10, pady=10)
-                save_button.grid(row=1, column=1, padx=10, pady=10)
+                # capture_button.grid(row=1, column=0, padx=10, pady=10)
+                # save_button.grid(row=1, column=1, padx=10, pady=10)
 
                 # Đặt các cột có cùng độ rộng để nút "Chụp" và nút "Lưu" có kích thước bằng nhau
                 self.frame.columnconfigure(0, weight=1)
                 self.frame.columnconfigure(1, weight=1)
-
-                
 
 
             except Exception as e:

@@ -91,8 +91,8 @@ class Server:
             apps = self.get_running_applications()
             return json.dumps(apps)
         elif request == "processus":
-            process_result = self.handle_processus_request(client_socket)
-            return "processing" 
+            self.handle_processus_request(client_socket)
+            return "Progress information has been sent"
         elif request.startswith("kill"):
             try:
                 _, pid_str = request.split(" ", 1)  # Tách lệnh và PID

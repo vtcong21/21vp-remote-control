@@ -42,11 +42,11 @@ class ProcessUI(Processes):
         self.process_tree.config(yscrollcommand=scrollbar.set)
 
         self.send_message("processus")
-        self.process_data = self.receive_processus_data()
+        self.processus_data = self.receive_processus_data()
 
-        if self.process_data:
+        if self.processus_data:
             try:
-                self.process_list = json.loads(self.process_data)
+                self.process_list = json.loads(self.processus_data)
                 
                 for process_info in self.process_list:
                     process_name = process_info.get("ProcessName", "N/A")
@@ -56,6 +56,10 @@ class ProcessUI(Processes):
                     
             except Exception as e:
                 print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
+        
+        # Nhận phản hồi từ máy chủ
+        response = self.receive_message()
+        print(response)  # In phản hồi ra màn hình
 
 
     def kill_button_click(self):
@@ -101,12 +105,20 @@ class ProcessUI(Processes):
         if process_id:
             # Gửi yêu cầu kết thúc quy trình đến máy chủ
             self.send_message(f"kill {process_id}")
+
+            # Nhận phản hồi từ máy chủ
+            response = self.receive_message()
+            print(response)  # In phản hồi ra màn hình
     
     def send_start_request(self):
         process_name = self.process_name_input.get()
         if process_name:
             # Gửi yêu cầu kết thúc quy trình đến máy chủ
             self.send_message(f"start {process_name}")
+
+            # Nhận phản hồi từ máy chủ
+            response = self.receive_message()
+            print(response)  # In phản hồi ra màn hình
 
     def send_message(self, message):
             if not self.socket:
@@ -148,9 +160,21 @@ class ProcessUI(Processes):
                 if chunk == "done":
                     break
                 process_data += chunk
-
             return process_data
 
         except Exception as e:
             print(f"Error receiving processus data: {e}")
             return ""
+        
+
+    def receive_message(self):
+        if not self.socket:
+            print("Not connected to the server.")
+            return None
+        try:
+            # Nhận dữ liệu từ máy chủ
+            received_data = self.socket.recv(1024)
+            return received_data.decode('utf-8')
+        except Exception as e:
+            print(f"Lỗi khi nhận dữ liệu: {str(e)}")
+            return None

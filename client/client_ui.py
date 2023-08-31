@@ -87,7 +87,8 @@ class ClientUI(Client):
     def apps_button_click(self):
         pass
     def running_app_button_click(self):
-        self.appUI = AppUI(self.socket, self.window)
+        # self.appUI = AppUI(self.socket, self.window)
+        pass
     def shutdown_button_click(self):
         self.send_message("shutdown")
     def processes_button_click(self):

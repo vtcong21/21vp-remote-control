@@ -55,7 +55,7 @@ class ProcessUI(Processes):
                     self.process_tree.insert("", "end", values=(process_name, process_id, thread_count))
                     
             except Exception as e:
-                print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
+                print(f"Error displaying progress information: {str(e)}")
 
 
     def kill_button_click(self):

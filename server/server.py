@@ -111,10 +111,11 @@ class Server:
             return "Server đã tắt"
         elif request == "apps":
             # Lấy danh sách các ứng dụng đang chạy trên máy chủ
-            apps = self.get_running_applications()
-            return json.dumps(apps)
+            # apps = self.get_running_applications()
+            # return json.dumps(apps)
+            self.handle_list_request(client_socket, False)
         elif request == "processus":
-            self.handle_processus_request(client_socket)
+            self.handle_list_request(client_socket, True)
             # return "Progress information has been sent"
         elif request.startswith("kill"):
             try:
@@ -346,10 +347,14 @@ class Server:
             print(f"Lỗi: {e}")
             return []
 
-    def handle_processus_request(self, client_socket):
+    def handle_list_request(self, client_socket, is_process):
         try:
-            processes = self.get_running_processus()
-            response = json.dumps(processes)
+            if is_process:
+                list = self.get_running_processus()
+            else:
+                list = self.get_running_applications()
+                
+            response = json.dumps(list)
 
             # Chia dữ liệu thành các gói tin có kích thước nhỏ
             chunk_size = 1024  # Kích thước mỗi gói tin

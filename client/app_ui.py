@@ -52,10 +52,10 @@ class AppUI(Applications):
                     app_name = app_info.get("ProcessName", "N/A")
                     app_id = str(app_info.get("PID", "N/A"))
                     thread_count = str(app_info.get("ThreadCount", "N/A"))
-                    self.process_tree.insert("", "end", values=(app_name, app_id, thread_count))
+                    self.app_tree.insert("", "end", values=(app_name, app_id, thread_count))
                     
             except Exception as e:
-                print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
+                print(f"Error displaying application information: {str(e)}")
 
 
     def kill_button_click(self):
@@ -132,7 +132,7 @@ class AppUI(Applications):
                 if app_data.endswith("done"):
                     app_data = app_data[:-4]  # Loại bỏ chuỗi "done" ở cuối
                     break
-
+            print(app_data)
             return app_data
 
         except Exception as e:

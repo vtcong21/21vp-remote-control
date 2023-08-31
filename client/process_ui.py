@@ -1,14 +1,11 @@
 from process import Processes
 import tkinter as tk
-from tkinter import Frame
-from PIL import Image, ImageTk
-from io import BytesIO
+from tkinter import ttk
 import json
 
 class ProcessUI(Processes):
     def __init__(self, socket, window):
         super().__init__(socket, window)
-        self.process_window = None
 
         # Tạo cửa sổ mới để hiển thị chức năng
         self.process_window = tk.Toplevel(self.window)
@@ -29,34 +26,37 @@ class ProcessUI(Processes):
     def show_list_button_click(self):
         self.process_window.geometry("400x350")
         
-        self.process_listbox = tk.Listbox(self.process_window, width=61, height=15)
-        self.process_listbox.place(x=16, y=86)  
-
-        # Tạo một thanh cuộn dọc và liên kết nó với Listbox
-        scrollbar = tk.Scrollbar(self.process_window, command=self.process_listbox.yview)
-        scrollbar.place(x=370, y=86, height=14*18)  # Đặt vị trí và chiều cao tương ứng với Listbox
-        # Cài đặt thanh cuộn cho Listbox
-        self.process_listbox.config(yscrollcommand=scrollbar.set)
+        columns = ("ProcessName", "ProcessID", "ThreadCount")
+        self.process_tree = ttk.Treeview(self.process_window, columns=columns, show="headings")
+        self.process_tree.configure(height=11)  # Đặt số dòng hiển thị là 15, thay đổi theo ý muốn
+        
+        # Đặt độ rộng cột và tiêu đề cho các cột
+        column_widths = {"ProcessName": 195, "ProcessID": 90, "ThreadCount": 80}
+        for col in columns:
+            self.process_tree.heading(col, text=col)
+            self.process_tree.column(col, width=column_widths[col])
+        self.process_tree.place(x=16, y=86)
+        
+        scrollbar = tk.Scrollbar(self.process_window, command=self.process_tree.yview)
+        scrollbar.place(x=382, y=86, height=245)
+        self.process_tree.config(yscrollcommand=scrollbar.set)
 
         self.send_message("processus")
-        self.process_data = self.receive_message()  # Thay đổi tên hàm theo tên thích hợp
+        self.process_data = self.receive_processus_data()
 
         if self.process_data:
             try:
                 self.process_list = json.loads(self.process_data)
-                # Tạo đầu cột
-                header_row = "ProcessName".ljust(30) + "PID".ljust(15) + "ThreadCount"
-                self.process_listbox.insert(tk.END, header_row)
                 
-                for self.process_info in self.process_list:
-                    self.process_name = self.process_info.get("ProcessName", "N/A")
-                    self.process_id = str(self.process_info.get("PID", "N/A")).ljust(15)
-                    self.thread_count = str(self.process_info.get("ThreadCount", "N/A"))
-                    self.formatted_row = self.process_name.ljust(30) + self.process_id + self.thread_count
-                    self.process_listbox.insert(tk.END, self.formatted_row)
-
+                for process_info in self.process_list:
+                    process_name = process_info.get("ProcessName", "N/A")
+                    process_id = str(process_info.get("PID", "N/A"))
+                    thread_count = str(process_info.get("ThreadCount", "N/A"))
+                    self.process_tree.insert("", "end", values=(process_name, process_id, thread_count))
+                    
             except Exception as e:
                 print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
+
 
     def kill_button_click(self):
         # Tạo cửa sổ mới
@@ -77,7 +77,7 @@ class ProcessUI(Processes):
 
 
     def clear_button_click(self):
-        self.process_listbox.delete(0, tk.END)
+        self.process_tree.delete(*self.process_tree.get_children())
 
     def start_button_click(self):
         # Tạo cửa sổ mới
@@ -103,10 +103,10 @@ class ProcessUI(Processes):
             self.send_message(f"kill {process_id}")
     
     def send_start_request(self):
-        start_id = self.start_name_entry.get()
+        start_id = self.start_name_input.get()
         if start_id:
             # Gửi yêu cầu kết thúc quy trình đến máy chủ
-            self.send_message(f"kill {start_id}")
+            self.send_message(f"start {start_id}")
 
     def send_message(self, message):
             if not self.socket:
@@ -119,15 +119,15 @@ class ProcessUI(Processes):
             except OSError:
                 print("Failed to send the message.")
     
-    def receive_message(self):
-        # Triển khai logic nhận dữ liệu từ máy chủ ở đây
-        # Ví dụ: Sử dụng socket để nhận dữ liệu từ máy chủ
-        try:
-            received_data = self.socket.recv(1024)
-            return received_data.decode('utf-8')
-        except Exception as e:
-            print(f"Lỗi khi nhận dữ liệu: {str(e)}")
-            return None
+    # def receive_message(self):
+    #     # Triển khai logic nhận dữ liệu từ máy chủ ở đây
+    #     # Ví dụ: Sử dụng socket để nhận dữ liệu từ máy chủ
+    #     try:
+    #         received_data = self.socket.recv(1024)
+    #         return received_data.decode('utf-8')
+    #     except Exception as e:
+    #         print(f"Lỗi khi nhận dữ liệu: {str(e)}")
+    #         return None
     
     def kill_on_entry_click(self, event):
         if self.process_id_input.get() == "Enter Process ID":
@@ -148,3 +148,18 @@ class ProcessUI(Processes):
         if not self.start_name_input.get():
             self.start_name_input.insert(0, "Enter Process Name")
             self.start_name_input.config(fg="gray")
+    
+    def receive_processus_data(self):
+        try:
+            process_data = ""
+            while True:
+                chunk = self.socket.recv(1024).decode()
+                if chunk == "done":
+                    break
+                process_data += chunk
+
+            return process_data
+
+        except Exception as e:
+            print(f"Error receiving processus data: {e}")
+            return ""

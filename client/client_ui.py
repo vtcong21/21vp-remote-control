@@ -6,7 +6,7 @@ from keylogger_ui import KeyloggerUI
 from screenshot_ui import ScreenshotUI
 from process_ui import ProcessUI
 from app_ui import AppUI
-
+from registry_ui import RegistryUI
 class ClientUI(Client):
     def __init__(self):
         super().__init__()
@@ -17,6 +17,7 @@ class ClientUI(Client):
         self.keyloggerUI = None
         self.screenshotUI = None
         self.processUI = None
+        self.registryUI = None
 
 
         self.server_ip_label = tk.Label(self.window, text="Enter IP Address:")
@@ -75,8 +76,13 @@ class ClientUI(Client):
             self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click, width=27, height=2)
             self.screenshot_button.place(relx=0.240, rely=0.795)
 
+            self.screenshot_button = tk.Button(self.window, text="Registry", command=self.registry_button_click, width=27, height=2)
+            self.screenshot_button.place(relx=0.240, rely=0.795)
+
             self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click, width=10, height=2)
             self.quit_button.place(relx=0.535, rely=0.58)
+    def registry_button_click(self):
+        self.registryUI = RegistryUI(self.socket, self.window)
     def quit_button_click(self):
         if messagebox.askokcancel("Đóng Client", "Bạn có chắc chắn muốn đóng Client?"):
             self.window.destroy()

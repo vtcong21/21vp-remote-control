@@ -1,9 +1,9 @@
-from app import Application
+from app import Applications
 import tkinter as tk
 from tkinter import ttk
 import json
 
-class AppUI(Application):
+class AppUI(Applications):
     def __init__(self, socket, window):
         super().__init__(socket, window)
 
@@ -26,12 +26,12 @@ class AppUI(Application):
     def show_list_button_click(self):
         self.app_window.geometry("400x350")
         
-        columns = ("ProcessName", "ProcessID", "ThreadCount")
+        columns = ("Name Application", "ID Application", "Count Thread")
         self.app_tree = ttk.Treeview(self.app_window, columns=columns, show="headings")
         self.app_tree.configure(height=11)  # Đặt số dòng hiển thị là 15, thay đổi theo ý muốn
         
         # Đặt độ rộng cột và tiêu đề cho các cột
-        column_widths = {"ProcessName": 185, "ProcessID": 100, "ThreadCount": 80}
+        column_widths = {"Name Application": 185, "ID Application": 100, "Count Thread": 80}
         for col in columns:
             self.app_tree.heading(col, text=col)
             self.app_tree.column(col, width=column_widths[col])
@@ -46,7 +46,7 @@ class AppUI(Application):
 
         if self.app_data:
             try:
-                self.app_list = json.loads(self.app_data)
+                self.process_list = json.loads(self.app_data)
                 
                 for app_info in self.app_list:
                     app_name = app_info.get("ProcessName", "N/A")
@@ -56,18 +56,22 @@ class AppUI(Application):
                     
             except Exception as e:
                 print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
+        
+        # Nhận phản hồi từ máy chủ
+        response = self.receive_message()
+        print(response)  # In phản hồi ra màn hình
 
 
     def kill_button_click(self):
         # Tạo cửa sổ mới
         self.kill_app_window = tk.Toplevel(self.window)
         self.kill_app_window.geometry("390x60")
-        self.kill_app_window.title("Kill Process")
+        self.kill_app_window.title("Kill App")
 
-        self.app_id_input = tk.Entry(self.kill_app_window)
+        self.app_id_input = tk.Entry(self.kill_process_window)
         self.app_id_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
      
-        self.app_id_input.insert(0, "Enter Process ID")
+        self.app_id_input.insert(0, "Enter ID")
         self.app_id_input.config(fg="gray")  
         self.app_id_input.bind("<FocusIn>", self.kill_on_entry_click)
         self.app_id_input.bind("<FocusOut>", self.kill_on_focus_out)
@@ -77,18 +81,18 @@ class AppUI(Application):
 
 
     def clear_button_click(self):
-        self.app_tree.delete(*self.process_tree.get_children())
+        self.app_tree.delete(*self.app_tree.get_children())
 
     def start_button_click(self):
         # Tạo cửa sổ mới
         self.start_app_window = tk.Toplevel(self.window)
         self.start_app_window.geometry("390x60")
-        self.start_app_window.title("Start Process")
+        self.start_app_window.title("Start App")
 
         self.app_name_input = tk.Entry(self.start_app_window)
         self.app_name_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
      
-        self.app_name_input.insert(0, "Enter Process Name")
+        self.app_name_input.insert(0, "Enter Name")
         self.app_name_input.config(fg="gray")  
         self.app_name_input.bind("<FocusIn>", self.start_on_entry_click)
         self.app_name_input.bind("<FocusOut>", self.start_on_focus_out)
@@ -101,12 +105,20 @@ class AppUI(Application):
         if app_id:
             # Gửi yêu cầu kết thúc quy trình đến máy chủ
             self.send_message(f"kill {app_id}")
+
+            # Nhận phản hồi từ máy chủ
+            response = self.receive_message()
+            print(response)  # In phản hồi ra màn hình
     
     def send_start_request(self):
         app_name = self.app_name_input.get()
         if app_name:
             # Gửi yêu cầu kết thúc quy trình đến máy chủ
             self.send_message(f"start {app_name}")
+
+            # Nhận phản hồi từ máy chủ
+            response = self.receive_message()
+            print(response)  # In phản hồi ra màn hình
 
     def send_message(self, message):
             if not self.socket:
@@ -118,25 +130,26 @@ class AppUI(Application):
                 print("Message sent.")
             except OSError:
                 print("Failed to send the message.")
+
     
     def kill_on_entry_click(self, event):
-        if self.app_id_input.get() == "Enter Process ID":
+        if self.app_id_input.get() == "Enter ID":
             self.app_id_input.delete(0, "end")  # Xóa nội dung hiện tại
             self.app_id_input.config(fg="black")  # Đổi màu văn bản thành đen
 
     def kill_on_focus_out(self, event):
         if not self.app_id_input.get():
-            self.app_id_input.insert(0, "Enter Process ID")
+            self.app_id_input.insert(0, "Enter ID")
             self.app_id_input.config(fg="gray")
     
     def start_on_entry_click(self, event):
-        if self.app_name_input.get() == "Enter Process Name":
+        if self.app_name_input.get() == "Enter Name":
             self.app_name_input.delete(0, "end")  # Xóa nội dung hiện tại
             self.app_name_input.config(fg="black")  # Đổi màu văn bản thành đen
 
     def start_on_focus_out(self, event):
         if not self.app_name_input.get():
-            self.app_name_input.insert(0, "Enter Process Name")
+            self.app_name_input.insert(0, "Enter Name")
             self.app_name_input.config(fg="gray")
     
     def receive_processus_data(self):
@@ -147,9 +160,21 @@ class AppUI(Application):
                 if chunk == "done":
                     break
                 app_data += chunk
-
             return app_data
 
         except Exception as e:
             print(f"Error receiving processus data: {e}")
             return ""
+        
+
+    def receive_message(self):
+        if not self.socket:
+            print("Not connected to the server.")
+            return None
+        try:
+            # Nhận dữ liệu từ máy chủ
+            received_data = self.socket.recv(1024)
+            return received_data.decode('utf-8')
+        except Exception as e:
+            print(f"Lỗi khi nhận dữ liệu: {str(e)}")
+            return None

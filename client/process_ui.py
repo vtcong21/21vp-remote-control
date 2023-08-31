@@ -26,12 +26,12 @@ class ProcessUI(Processes):
     def show_list_button_click(self):
         self.process_window.geometry("400x350")
         
-        columns = ("ProcessName", "ProcessID", "ThreadCount")
+        columns = ("Name Process", "ID Process", "Count Thread")
         self.process_tree = ttk.Treeview(self.process_window, columns=columns, show="headings")
         self.process_tree.configure(height=11)  # Đặt số dòng hiển thị là 15, thay đổi theo ý muốn
         
         # Đặt độ rộng cột và tiêu đề cho các cột
-        column_widths = {"ProcessName": 185, "ProcessID": 100, "ThreadCount": 80}
+        column_widths = {"Name Process": 185, "ID Process": 100, "Count Thread": 80}
         for col in columns:
             self.process_tree.heading(col, text=col)
             self.process_tree.column(col, width=column_widths[col])
@@ -58,8 +58,8 @@ class ProcessUI(Processes):
                 print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
         
         # Nhận phản hồi từ máy chủ
-        response = self.receive_message()
-        print(response)  # In phản hồi ra màn hình
+        # response = self.receive_message()
+        # print(response)  # In phản hồi ra màn hình
 
 
     def kill_button_click(self):
@@ -71,7 +71,7 @@ class ProcessUI(Processes):
         self.process_id_input = tk.Entry(self.kill_process_window)
         self.process_id_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
      
-        self.process_id_input.insert(0, "Enter Process ID")
+        self.process_id_input.insert(0, "Enter ID")
         self.process_id_input.config(fg="gray")  
         self.process_id_input.bind("<FocusIn>", self.kill_on_entry_click)
         self.process_id_input.bind("<FocusOut>", self.kill_on_focus_out)
@@ -92,7 +92,7 @@ class ProcessUI(Processes):
         self.process_name_input = tk.Entry(self.start_process_window)
         self.process_name_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
      
-        self.process_name_input.insert(0, "Enter Process Name")
+        self.process_name_input.insert(0, "Enter Name")
         self.process_name_input.config(fg="gray")  
         self.process_name_input.bind("<FocusIn>", self.start_on_entry_click)
         self.process_name_input.bind("<FocusOut>", self.start_on_focus_out)
@@ -133,23 +133,23 @@ class ProcessUI(Processes):
 
     
     def kill_on_entry_click(self, event):
-        if self.process_id_input.get() == "Enter Process ID":
+        if self.process_id_input.get() == "Enter ID":
             self.process_id_input.delete(0, "end")  # Xóa nội dung hiện tại
             self.process_id_input.config(fg="black")  # Đổi màu văn bản thành đen
 
     def kill_on_focus_out(self, event):
         if not self.process_id_input.get():
-            self.process_id_input.insert(0, "Enter Process ID")
+            self.process_id_input.insert(0, "Enter ID")
             self.process_id_input.config(fg="gray")
     
     def start_on_entry_click(self, event):
-        if self.process_name_input.get() == "Enter Process Name":
+        if self.process_name_input.get() == "Enter Name":
             self.process_name_input.delete(0, "end")  # Xóa nội dung hiện tại
             self.process_name_input.config(fg="black")  # Đổi màu văn bản thành đen
 
     def start_on_focus_out(self, event):
         if not self.process_name_input.get():
-            self.process_name_input.insert(0, "Enter Process Name")
+            self.process_name_input.insert(0, "Enter Name")
             self.process_name_input.config(fg="gray")
     
     def receive_processus_data(self):
@@ -157,11 +157,13 @@ class ProcessUI(Processes):
             process_data = ""
             while True:
                 chunk = self.socket.recv(1024).decode()
-                if chunk == "done":
-                    break
-                process_data += chunk
-            return process_data
 
+                process_data += chunk
+                if process_data.endswith("done"):
+                    process_data = process_data[:-4]  # Loại bỏ chuỗi "done" ở cuối
+                    break
+
+            return process_data
         except Exception as e:
             print(f"Error receiving processus data: {e}")
             return ""

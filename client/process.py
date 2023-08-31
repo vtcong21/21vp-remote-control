@@ -37,5 +37,5 @@ class Processes():
     def start_on_focus_out(self, event):
         pass
 
-    def receive_processus_data(self, client_socket):
+    def receive_processus_data(self):
         pass

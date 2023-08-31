@@ -4,38 +4,36 @@ class Processes():
         self.socket = socket
         self.process_window = None
     
-    def kill_button_click(self):
-        pass
 
     def show_list_button_click(self):
         pass
 
-    def clear_button_click(self):
+    def kill_button_click(self):
         pass
 
     def start_button_click(self):
         pass
 
-    def send_kill_request(self):
+    def clear_button_click(self):
         pass
 
-    def send_start_request(self):
+    def create_input_window(self, title, entry_text, request):
+        pass
+
+    def send_request(self, data_input, request):
         pass
 
     def send_message(self, message):
         pass
 
-    def kill_on_entry_click(self, event):
+    def on_entry_click(self, default_text):
         pass
 
-    def kill_on_focus_out(self, event):
-        pass
-
-    def start_on_entry_click(self, event):
-        pass
-
-    def start_on_focus_out(self, event):
+    def on_focus_out(self, default_text):
         pass
 
     def receive_processus_data(self):
+        pass
+
+    def receive_message(self):
         pass

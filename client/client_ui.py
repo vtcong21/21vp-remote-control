@@ -77,7 +77,7 @@ class ClientUI(Client):
             self.screenshot_button.place(relx=0.240, rely=0.795)
 
             self.screenshot_button = tk.Button(self.window, text="Registry", command=self.registry_button_click, width=27, height=2)
-            self.screenshot_button.place(relx=0.240, rely=0.795)
+            self.screenshot_button.place(relx=0.240, rely=0.2)
 
             self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click, width=10, height=2)
             self.quit_button.place(relx=0.535, rely=0.58)

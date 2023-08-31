@@ -10,7 +10,7 @@ class ProcessUI(Processes):
         # Tạo cửa sổ mới để hiển thị chức năng
         self.process_window = tk.Toplevel(self.window)
         self.process_window.geometry("400x90")
-        self.process_window.title("List Process")
+        self.process_window.title("List Processes")
 
         # Tạo các nút "Kill", "Xem danh sách", "Xóa" và "Bắt đầu"
         self.kill_button = tk.Button(self.process_window, text="Kill", command=self.kill_button_click, width=11, height=3)
@@ -42,83 +42,62 @@ class ProcessUI(Processes):
         self.process_tree.config(yscrollcommand=scrollbar.set)
 
         self.send_message("processus")
-        self.processus_data = self.receive_processus_data()
+        processus_data = self.receive_processus_data()
 
-        if self.processus_data:
+        if processus_data:
             try:
-                self.process_list = json.loads(self.processus_data)
+                process_list = json.loads(processus_data)
                 
-                for process_info in self.process_list:
+                for process_info in process_list:
                     process_name = process_info.get("ProcessName", "N/A")
                     process_id = str(process_info.get("PID", "N/A"))
                     thread_count = str(process_info.get("ThreadCount", "N/A"))
                     self.process_tree.insert("", "end", values=(process_name, process_id, thread_count))
                     
             except Exception as e:
-                print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
-        
-        # Nhận phản hồi từ máy chủ
-        # response = self.receive_message()
-        # print(response)  # In phản hồi ra màn hình
+                print(f"Error displaying progress information: {str(e)}")
 
 
     def kill_button_click(self):
-        # Tạo cửa sổ mới
-        self.kill_process_window = tk.Toplevel(self.window)
-        self.kill_process_window.geometry("390x60")
-        self.kill_process_window.title("Kill Process")
+        self.create_input_window("Kill Process", "Enter ID", "Kill")
 
-        self.process_id_input = tk.Entry(self.kill_process_window)
-        self.process_id_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
-     
-        self.process_id_input.insert(0, "Enter ID")
-        self.process_id_input.config(fg="gray")  
-        self.process_id_input.bind("<FocusIn>", self.kill_on_entry_click)
-        self.process_id_input.bind("<FocusOut>", self.kill_on_focus_out)
 
-        self.kill_process_button = tk.Button(self.kill_process_window, text="Kill", command=self.send_kill_request)
-        self.kill_process_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
+    def start_button_click(self):
+        self.create_input_window("Start Process", "Enter Name", "Start")
 
 
     def clear_button_click(self):
         self.process_tree.delete(*self.process_tree.get_children())
 
-    def start_button_click(self):
-        # Tạo cửa sổ mới
-        self.start_process_window = tk.Toplevel(self.window)
-        self.start_process_window.geometry("390x60")
-        self.start_process_window.title("Start Process")
 
-        self.process_name_input = tk.Entry(self.start_process_window)
-        self.process_name_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
-     
-        self.process_name_input.insert(0, "Enter Name")
-        self.process_name_input.config(fg="gray")  
-        self.process_name_input.bind("<FocusIn>", self.start_on_entry_click)
-        self.process_name_input.bind("<FocusOut>", self.start_on_focus_out)
+    def create_input_window(self, title, entry_text, request):
+        self.child_window = tk.Toplevel(self.window)
+        self.child_window.geometry("390x60")
+        self.child_window.title(title)
 
-        self.start_process_button = tk.Button(self.start_process_window, text="Start", command=self.send_start_request)
-        self.start_process_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
+        self.input_entry = tk.Entry(self.child_window)
+        self.input_entry.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
+        self.input_entry.insert(0, entry_text)
+        self.input_entry.config(fg="gray")  
+        self.input_entry.bind("<FocusIn>", lambda event: self.on_entry_click(entry_text))
+        self.input_entry.bind("<FocusOut>", lambda event: self.on_focus_out(entry_text))
 
-    def send_kill_request(self):
-        process_id = self.process_id_input.get()
-        if process_id:
-            # Gửi yêu cầu kết thúc quy trình đến máy chủ
-            self.send_message(f"kill {process_id}")
+        self.input_button = tk.Button(self.child_window, text=request, command=lambda: self.send_request(self.input_entry, request))
+        self.input_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
 
-            # Nhận phản hồi từ máy chủ
-            response = self.receive_message()
-            print(response)  # In phản hồi ra màn hình
-    
-    def send_start_request(self):
-        process_name = self.process_name_input.get()
-        if process_name:
-            # Gửi yêu cầu kết thúc quy trình đến máy chủ
-            self.send_message(f"start {process_name}")
+
+    def send_request(self, data_input, request):
+        value = data_input.get()
+        if value:
+            if request == "Kill":
+                self.send_message(f"kill {value}")
+            elif request == "Start":
+                self.send_message(f"start {value}")
 
             # Nhận phản hồi từ máy chủ
             response = self.receive_message()
             print(response)  # In phản hồi ra màn hình
+
 
     def send_message(self, message):
             if not self.socket:
@@ -132,33 +111,24 @@ class ProcessUI(Processes):
                 print("Failed to send the message.")
 
     
-    def kill_on_entry_click(self, event):
-        if self.process_id_input.get() == "Enter ID":
-            self.process_id_input.delete(0, "end")  # Xóa nội dung hiện tại
-            self.process_id_input.config(fg="black")  # Đổi màu văn bản thành đen
+    def on_entry_click(self, default_text):
+        if self.input_entry.get() == default_text:
+            self.input_entry.delete(0, "end")  # Xóa nội dung hiện tại
+            self.input_entry.config(fg="black")  # Đổi màu văn bản thành đen
 
-    def kill_on_focus_out(self, event):
-        if not self.process_id_input.get():
-            self.process_id_input.insert(0, "Enter ID")
-            self.process_id_input.config(fg="gray")
-    
-    def start_on_entry_click(self, event):
-        if self.process_name_input.get() == "Enter Name":
-            self.process_name_input.delete(0, "end")  # Xóa nội dung hiện tại
-            self.process_name_input.config(fg="black")  # Đổi màu văn bản thành đen
+    def on_focus_out(self, default_text):
+        if not self.input_entry.get():
+            self.input_entry.insert(0, default_text)
+            self.input_entry.config(fg="gray")
 
-    def start_on_focus_out(self, event):
-        if not self.process_name_input.get():
-            self.process_name_input.insert(0, "Enter Name")
-            self.process_name_input.config(fg="gray")
     
     def receive_processus_data(self):
         try:
             process_data = ""
             while True:
                 chunk = self.socket.recv(1024).decode()
-
                 process_data += chunk
+
                 if process_data.endswith("done"):
                     process_data = process_data[:-4]  # Loại bỏ chuỗi "done" ở cuối
                     break

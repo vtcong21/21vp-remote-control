@@ -10,7 +10,7 @@ class AppUI(Applications):
         # Tạo cửa sổ mới để hiển thị chức năng
         self.app_window = tk.Toplevel(self.window)
         self.app_window.geometry("400x90")
-        self.app_window.title("List App")
+        self.app_window.title("List Applications")
 
         # Tạo các nút "Kill", "Xem danh sách", "Xóa" và "Bắt đầu"
         self.kill_button = tk.Button(self.app_window, text="Kill", command=self.kill_button_click, width=11, height=3)
@@ -42,13 +42,13 @@ class AppUI(Applications):
         self.app_tree.config(yscrollcommand=scrollbar.set)
 
         self.send_message("apps")
-        self.app_data = self.receive_processus_data()
+        app_data = self.receive_processus_data()
 
-        if self.app_data:
+        if app_data:
             try:
-                self.process_list = json.loads(self.app_data)
+                app_list = json.loads(app_data)
                 
-                for app_info in self.app_list:
+                for app_info in app_list:
                     app_name = app_info.get("ProcessName", "N/A")
                     app_id = str(app_info.get("PID", "N/A"))
                     thread_count = str(app_info.get("ThreadCount", "N/A"))
@@ -56,10 +56,6 @@ class AppUI(Applications):
                     
             except Exception as e:
                 print(f"Lỗi khi hiển thị thông tin tiến trình: {str(e)}")
-        
-        # Nhận phản hồi từ máy chủ
-        response = self.receive_message()
-        print(response)  # In phản hồi ra màn hình
 
 
     def kill_button_click(self):
@@ -76,8 +72,8 @@ class AppUI(Applications):
         self.app_id_input.bind("<FocusIn>", self.kill_on_entry_click)
         self.app_id_input.bind("<FocusOut>", self.kill_on_focus_out)
 
-        self.kill_app_button = tk.Button(self.kill_app_window, text="Kill", command=self.send_kill_request)
-        self.kill_app_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
+        kill_app_button = tk.Button(self.kill_app_window, text="Kill", command=self.send_kill_request)
+        kill_app_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
 
 
     def clear_button_click(self):
@@ -157,9 +153,12 @@ class AppUI(Applications):
             app_data = ""
             while True:
                 chunk = self.socket.recv(1024).decode()
-                if chunk == "done":
-                    break
                 app_data += chunk
+                
+                if app_data.endswith("done"):
+                    app_data = app_data[:-4]  # Loại bỏ chuỗi "done" ở cuối
+                    break
+
             return app_data
 
         except Exception as e:

@@ -366,8 +366,6 @@ class Server:
             error_message = str(e)
             self.send_packet(client_socket, error_message)  # Gửi thông báo lỗi đến client
 
-        # finally:
-        #     client_socket.close()  # Đảm bảo đóng kết nối khi xong việc xử lý
     
     def send_packet(self, client_socket, packet):
         try:

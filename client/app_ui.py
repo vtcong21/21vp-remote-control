@@ -59,62 +59,45 @@ class AppUI(Applications):
 
 
     def kill_button_click(self):
-        # Tạo cửa sổ mới
-        self.kill_app_window = tk.Toplevel(self.window)
-        self.kill_app_window.geometry("390x60")
-        self.kill_app_window.title("Kill App")
+        self.create_input_window("Kill Application", "Enter ID", "Kill")
 
-        self.app_id_input = tk.Entry(self.kill_process_window)
-        self.app_id_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
-     
-        self.app_id_input.insert(0, "Enter ID")
-        self.app_id_input.config(fg="gray")  
-        self.app_id_input.bind("<FocusIn>", self.kill_on_entry_click)
-        self.app_id_input.bind("<FocusOut>", self.kill_on_focus_out)
 
-        kill_app_button = tk.Button(self.kill_app_window, text="Kill", command=self.send_kill_request)
-        kill_app_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
+    def start_button_click(self):
+        self.create_input_window("Start Application", "Enter Name", "Start")
 
 
     def clear_button_click(self):
         self.app_tree.delete(*self.app_tree.get_children())
 
-    def start_button_click(self):
-        # Tạo cửa sổ mới
-        self.start_app_window = tk.Toplevel(self.window)
-        self.start_app_window.geometry("390x60")
-        self.start_app_window.title("Start App")
 
-        self.app_name_input = tk.Entry(self.start_app_window)
-        self.app_name_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
-     
-        self.app_name_input.insert(0, "Enter Name")
-        self.app_name_input.config(fg="gray")  
-        self.app_name_input.bind("<FocusIn>", self.start_on_entry_click)
-        self.app_name_input.bind("<FocusOut>", self.start_on_focus_out)
+    def create_input_window(self, title, entry_text, request):
+        self.child_window = tk.Toplevel(self.window)
+        self.child_window.geometry("390x60")
+        self.child_window.title(title)
 
-        self.start_app_button = tk.Button(self.start_app_window, text="Start", command=self.send_start_request)
-        self.start_app_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
+        self.input_entry = tk.Entry(self.child_window)
+        self.input_entry.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
+        self.input_entry.insert(0, entry_text)
+        self.input_entry.config(fg="gray")  
+        self.input_entry.bind("<FocusIn>", lambda event: self.on_entry_click(entry_text))
+        self.input_entry.bind("<FocusOut>", lambda event: self.on_focus_out(entry_text))
 
-    def send_kill_request(self):
-        app_id = self.app_id_input.get()
-        if app_id:
-            # Gửi yêu cầu kết thúc quy trình đến máy chủ
-            self.send_message(f"kill {app_id}")
+        self.input_button = tk.Button(self.child_window, text=request, command=lambda: self.send_request(self.input_entry, request))
+        self.input_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
 
-            # Nhận phản hồi từ máy chủ
-            response = self.receive_message()
-            print(response)  # In phản hồi ra màn hình
-    
-    def send_start_request(self):
-        app_name = self.app_name_input.get()
-        if app_name:
-            # Gửi yêu cầu kết thúc quy trình đến máy chủ
-            self.send_message(f"start {app_name}")
+
+    def send_request(self, data_input, request):
+        value = data_input.get()
+        if value:
+            if request == "Kill":
+                self.send_message(f"kill {value}")
+            elif request == "Start":
+                self.send_message(f"start {value}")
 
             # Nhận phản hồi từ máy chủ
             response = self.receive_message()
             print(response)  # In phản hồi ra màn hình
+
 
     def send_message(self, message):
             if not self.socket:
@@ -128,25 +111,16 @@ class AppUI(Applications):
                 print("Failed to send the message.")
 
     
-    def kill_on_entry_click(self, event):
-        if self.app_id_input.get() == "Enter ID":
-            self.app_id_input.delete(0, "end")  # Xóa nội dung hiện tại
-            self.app_id_input.config(fg="black")  # Đổi màu văn bản thành đen
+    def on_entry_click(self, default_text):
+        if self.input_entry.get() == default_text:
+            self.input_entry.delete(0, "end")  # Xóa nội dung hiện tại
+            self.input_entry.config(fg="black")  # Đổi màu văn bản thành đen
 
-    def kill_on_focus_out(self, event):
-        if not self.app_id_input.get():
-            self.app_id_input.insert(0, "Enter ID")
-            self.app_id_input.config(fg="gray")
-    
-    def start_on_entry_click(self, event):
-        if self.app_name_input.get() == "Enter Name":
-            self.app_name_input.delete(0, "end")  # Xóa nội dung hiện tại
-            self.app_name_input.config(fg="black")  # Đổi màu văn bản thành đen
+    def on_focus_out(self, default_text):
+        if not self.input_entry.get():
+            self.input_entry.insert(0, default_text)
+            self.input_entry.config(fg="gray")
 
-    def start_on_focus_out(self, event):
-        if not self.app_name_input.get():
-            self.app_name_input.insert(0, "Enter Name")
-            self.app_name_input.config(fg="gray")
     
     def receive_processus_data(self):
         try:

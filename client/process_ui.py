@@ -160,6 +160,7 @@ class ProcessUI(Processes):
                 if chunk == "done":
                     break
                 process_data += chunk
+                print(process_data+"\n")
             return process_data
 
         except Exception as e:

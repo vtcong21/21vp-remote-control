@@ -31,7 +31,7 @@ class ProcessUI(Processes):
         self.process_tree.configure(height=11)  # Đặt số dòng hiển thị là 15, thay đổi theo ý muốn
         
         # Đặt độ rộng cột và tiêu đề cho các cột
-        column_widths = {"ProcessName": 195, "ProcessID": 90, "ThreadCount": 80}
+        column_widths = {"ProcessName": 185, "ProcessID": 100, "ThreadCount": 80}
         for col in columns:
             self.process_tree.heading(col, text=col)
             self.process_tree.column(col, width=column_widths[col])
@@ -85,13 +85,13 @@ class ProcessUI(Processes):
         self.start_process_window.geometry("390x60")
         self.start_process_window.title("Start Process")
 
-        self.start_name_input = tk.Entry(self.start_process_window)
-        self.start_name_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
+        self.process_name_input = tk.Entry(self.start_process_window)
+        self.process_name_input.place(relx=0.05, rely=0.3, relwidth=0.65, relheight=0.45)
      
-        self.start_name_input.insert(0, "Enter Process Name")
-        self.start_name_input.config(fg="gray")  
-        self.start_name_input.bind("<FocusIn>", self.start_on_entry_click)
-        self.start_name_input.bind("<FocusOut>", self.start_on_focus_out)
+        self.process_name_input.insert(0, "Enter Process Name")
+        self.process_name_input.config(fg="gray")  
+        self.process_name_input.bind("<FocusIn>", self.start_on_entry_click)
+        self.process_name_input.bind("<FocusOut>", self.start_on_focus_out)
 
         self.start_process_button = tk.Button(self.start_process_window, text="Start", command=self.send_start_request)
         self.start_process_button.place(relx=0.73, rely=0.3, relwidth=0.22, relheight=0.45)
@@ -103,10 +103,10 @@ class ProcessUI(Processes):
             self.send_message(f"kill {process_id}")
     
     def send_start_request(self):
-        start_id = self.start_name_input.get()
-        if start_id:
+        process_name = self.process_name_input.get()
+        if process_name:
             # Gửi yêu cầu kết thúc quy trình đến máy chủ
-            self.send_message(f"start {start_id}")
+            self.send_message(f"start {process_name}")
 
     def send_message(self, message):
             if not self.socket:
@@ -118,16 +118,7 @@ class ProcessUI(Processes):
                 print("Message sent.")
             except OSError:
                 print("Failed to send the message.")
-    
-    # def receive_message(self):
-    #     # Triển khai logic nhận dữ liệu từ máy chủ ở đây
-    #     # Ví dụ: Sử dụng socket để nhận dữ liệu từ máy chủ
-    #     try:
-    #         received_data = self.socket.recv(1024)
-    #         return received_data.decode('utf-8')
-    #     except Exception as e:
-    #         print(f"Lỗi khi nhận dữ liệu: {str(e)}")
-    #         return None
+
     
     def kill_on_entry_click(self, event):
         if self.process_id_input.get() == "Enter Process ID":
@@ -140,14 +131,14 @@ class ProcessUI(Processes):
             self.process_id_input.config(fg="gray")
     
     def start_on_entry_click(self, event):
-        if self.start_name_input.get() == "Enter Process Name":
-            self.start_name_input.delete(0, "end")  # Xóa nội dung hiện tại
-            self.start_name_input.config(fg="black")  # Đổi màu văn bản thành đen
+        if self.process_name_input.get() == "Enter Process Name":
+            self.process_name_input.delete(0, "end")  # Xóa nội dung hiện tại
+            self.process_name_input.config(fg="black")  # Đổi màu văn bản thành đen
 
     def start_on_focus_out(self, event):
-        if not self.start_name_input.get():
-            self.start_name_input.insert(0, "Enter Process Name")
-            self.start_name_input.config(fg="gray")
+        if not self.process_name_input.get():
+            self.process_name_input.insert(0, "Enter Process Name")
+            self.process_name_input.config(fg="gray")
     
     def receive_processus_data(self):
         try:

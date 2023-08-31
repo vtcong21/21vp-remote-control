@@ -1,10 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
 from client import Client
+import socket
 from keylogger_ui import KeyloggerUI
 from screenshot_ui import ScreenshotUI
-import socket
 from process_ui import ProcessUI
+from app_ui import AppUI
 
 class ClientUI(Client):
     def __init__(self):
@@ -86,7 +87,7 @@ class ClientUI(Client):
     def apps_button_click(self):
         pass
     def running_app_button_click(self):
-        pass
+        self.appUI = AppUI(self.socket, self.window)
     def shutdown_button_click(self):
         self.send_message("shutdown")
     def processes_button_click(self):

@@ -13,7 +13,7 @@ class ClientUI(Client):
 
         self.window = tk.Tk()
         self.window.title("Client")
-        self.window.geometry("400x300")
+        self.window.geometry("400x70")
         self.keyloggerUI = None
         self.screenshotUI = None
         self.processUI = None
@@ -21,16 +21,17 @@ class ClientUI(Client):
 
 
         self.server_ip_label = tk.Label(self.window, text="Enter IP Address:")
-        self.server_ip_label.pack()
+        self.server_ip_label.place(relx=0.05, rely=0.04)
 
         self.server_ip_entry = tk.Entry(self.window)
         self.server_ip_entry.insert(0, "127.0.0.1")
-        self.server_ip_entry.pack()
+        self.server_ip_entry.place(relx=0.05, rely=0.37, relwidth=0.65, relheight=0.4)
 
         self.connect_button = tk.Button(self.window, text="Connect", command=self.connect_button_click)
-        self.connect_button.pack()
+        self.connect_button.place(relx=0.73, rely=0.37, relwidth=0.22, relheight=0.4)
 
     def connect_button_click(self):
+        self.window.geometry("400x260")
         server_ip = self.server_ip_entry.get()
         try:
             self.connect_to_server(server_ip)
@@ -61,26 +62,27 @@ class ClientUI(Client):
             self.server_ip_entry.destroy()
             self.connect_button.destroy()
 
-            self.process_button = tk.Button(self.window, text="Running\nProcesses", command=self.processes_button_click, width=8, height=10)
-            self.process_button.place(relx=0.05, rely=0.4)  # Điều chỉnh vị trí theo tọa độ tương đối
+            self.process_button = tk.Button(self.window, text="Running\nProcesses", command=self.processes_button_click, width=8, height=9)
+            self.process_button.place(relx=0.05, rely=0.28)  # Điều chỉnh vị trí theo tọa độ tương đối
 
-            self.app_button = tk.Button(self.window, text="Running Applications", command=self.apps_button_click, width=27, height=2)
-            self.app_button.place(relx=0.240, rely=0.4)
+            self.app_button = tk.Button(self.window, text="Running Applications", command=self.apps_button_click, width=29, height=2)
+            self.app_button.place(relx=0.235, rely=0.28)
 
-            self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click, width=8, height=10)
-            self.keystroke_button.place(relx=0.765, rely=0.4)
+            self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click, width=8, height=9)
+            self.keystroke_button.place(relx=0.785, rely=0.28)
 
-            self.shutdown_button = tk.Button(self.window, text="Shutdown", command=self.shutdown_button_click, width=10, height=2)
-            self.shutdown_button.place(relx=0.245, rely=0.58)
+            self.shutdown_button = tk.Button(self.window, text="Shutdown", command=self.shutdown_button_click, width=13, height=2)
+            self.shutdown_button.place(relx=0.235, rely=0.48)
 
-            self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click, width=27, height=2)
-            self.screenshot_button.place(relx=0.240, rely=0.795)
+            self.screenshot_button = tk.Button(self.window, text="Take Screenshot", command=self.take_screenshot_button_click, width=29, height=2)
+            self.screenshot_button.place(relx=0.235, rely=0.68)
 
             self.screenshot_button = tk.Button(self.window, text="Registry", command=self.registry_button_click, width=27, height=2)
-            self.screenshot_button.place(relx=0.240, rely=0.2)
+            self.screenshot_button.place(relx=0.05, rely=0.09, relwidth=0.9)
 
-            self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click, width=10, height=2)
-            self.quit_button.place(relx=0.535, rely=0.58)
+            self.quit_button = tk.Button(self.window, text="Quit", command=self.quit_button_click, width=13, height=2)
+            self.quit_button.place(relx=0.51, rely=0.48)
+
     def registry_button_click(self):
         self.registryUI = RegistryUI(self.socket, self.window)
     def quit_button_click(self):

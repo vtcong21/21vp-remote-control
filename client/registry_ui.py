@@ -70,9 +70,9 @@ class RegistryUI(Registry):
         elif selected == "Delete Value":
             self.fields_1()
         elif selected == "Create Key":
-            self.fields_2()
+            self.fields_3()
         elif selected == "Delete Key":
-            self.fields_2()
+            self.fields_3()
 
     def fields_1(self):
         self.label_value_name.place(relx=0.05, rely=0.24, relwidth=0.28)
@@ -89,6 +89,14 @@ class RegistryUI(Registry):
         self.entry_value_data.place(relx=0.36, rely=0.28, relwidth=0.28)
         self.label_value_type.place(relx=0.67, rely=0.24, relwidth=0.28)
         self.entry_value_type.place(relx=0.67, rely=0.28, relwidth=0.28)
+
+    def fields_3(self):
+        self.label_value_name.place_forget()
+        self.entry_value_name.place_forget()
+        self.label_value_data.place_forget()
+        self.entry_value_data.place_forget()
+        self.label_value_type.place_forget()
+        self.entry_value_type.place_forget()
         
     def create_label(self, text):
         return ttk.Label(self.top_window, text=text)

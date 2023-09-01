@@ -14,8 +14,10 @@ class Client:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.server_ip, 12345))
             print("Đã kết nối tới server.")
+            return 1
         except ConnectionRefusedError:
             print("Không thể kết nối tới server.")
+            return 
 
     def send_message(self, message):
         if not self.socket:

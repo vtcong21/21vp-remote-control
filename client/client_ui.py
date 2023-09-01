@@ -34,15 +34,18 @@ class ClientUI(Client):
         self.window.geometry("400x260")
         server_ip = self.server_ip_entry.get()
         try:
-            self.connect_to_server(server_ip)
-            if self.socket:
+            response_connect_to_server = self.connect_to_server(server_ip)
+            if self.socket and response_connect_to_server == 1:
                 self.render_home_window()
+            else:
+                self.show_error_message("Lỗi Kết Nối")
         except socket.gaierror:
             error_message = "Không thể kết nối tới server. Vui lòng kiểm tra địa chỉ IP và thử lại."
             self.show_error_message(error_message)
         except Exception as e:
             error_message = "Lỗi xảy ra: " + str(e)
             self.show_error_message(error_message)
+    
 
     def quit_button_click(self):
         self.disconnect_from_server()

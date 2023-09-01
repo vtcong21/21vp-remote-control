@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter import ttk
+from ttkthemes import ThemedStyle
 from registry import Registry
 
 class RegistryUI(Registry):
@@ -8,20 +10,25 @@ class RegistryUI(Registry):
 
     def setup_ui(self):
         self.top_window = tk.Toplevel(self.window)
+        self.top_window.geometry("400x500")
         self.top_window.title("Registry Operations")
+
+        # Apply the "arc" theme to the top window
+        style = ThemedStyle(self.window)
+        style.set_theme("arc")
 
         # Create dropdown menu for selecting function
         functions = ["Get Value", "Set Value", "Delete Value", "Create Key", "Delete Key"]
         self.selected_function = tk.StringVar()
         self.selected_function.set(functions[0])  # Set default function
 
-        dropdown_menu = tk.OptionMenu(self.top_window, self.selected_function, *functions, command=self.update_fields)
-        dropdown_menu.pack()
+        dropdown_menu = ttk.OptionMenu(self.top_window, self.selected_function, *functions, command=self.update_fields)
+        dropdown_menu.place(relx=0.05, rely=0.03, relwidth=0.9)
 
         # Create labels and entry fields
         self.label_key_path = self.create_label("Key Path:")
         self.entry_key_path = self.create_entry()
-
+   
         self.label_value_name = self.create_label("Value Name:")
         self.entry_value_name = self.create_entry()
         self.entry_value_name.pack_forget()  # Ẩn mặc định
@@ -35,11 +42,12 @@ class RegistryUI(Registry):
         self.entry_value_type.pack_forget()  # Ẩn mặc định
 
         # Create buttons
-        self.execute_button = tk.Button(self.top_window, text="Execute", command=self.execute_function)
-        self.execute_button.pack()
+        self.execute_button = ttk.Button(self.top_window, text="Execute", command=self.execute_function)
+        self.execute_button.place(relx=0.05, rely=0.8, relwidth=0.9)
 
         # Create log text widget
         self.log_text = self.create_text_widget()
+        self.log_text.place(relx=0.05, rely=0.6, relwidth=0.9, relheight=0.2)
         
         # Create scrollbar for the log text widget
         self.scrollbar = self.create_scrollbar()
@@ -79,10 +87,10 @@ class RegistryUI(Registry):
             field.pack()
 
     def create_label(self, text):
-        return tk.Label(self.top_window, text=text)
+        return ttk.Label(self.top_window, text=text)
 
     def create_entry(self):
-        return tk.Entry(self.top_window)
+        return ttk.Entry(self.top_window)
 
     def create_text_widget(self):
         text_widget = tk.Text(self.top_window)

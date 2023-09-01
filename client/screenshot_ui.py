@@ -13,7 +13,6 @@ class ScreenshotUI(Screenshot):
         self.screenshot_data = None
 
 
-
     # Gửi yêu cầu chụp màn hình tới server
         self.send_message("screenshot")
         # Nhận dữ liệu hình ảnh đã chụp từ server

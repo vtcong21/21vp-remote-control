@@ -64,7 +64,7 @@ class ClientUI(Client):
             self.process_button = tk.Button(self.window, text="Running\nProcesses", command=self.processes_button_click, width=8, height=10)
             self.process_button.place(relx=0.05, rely=0.4)  # Điều chỉnh vị trí theo tọa độ tương đối
 
-            self.app_button = tk.Button(self.window, text="Running Applications", command=self.running_app_button_click, width=27, height=2)
+            self.app_button = tk.Button(self.window, text="Running Applications", command=self.apps_button_click, width=27, height=2)
             self.app_button.place(relx=0.240, rely=0.4)
 
             self.keystroke_button = tk.Button(self.window, text="Keystroke", command=self.keystroke_button_click, width=8, height=10)
@@ -91,8 +91,6 @@ class ClientUI(Client):
     def take_screenshot_button_click(self):
         self.screenshotUI = ScreenshotUI(self.socket, self.window)
     def apps_button_click(self):
-        pass
-    def running_app_button_click(self):
         self.appUI = AppUI(self.socket, self.window)
     def shutdown_button_click(self):
         self.send_message("shutdown")

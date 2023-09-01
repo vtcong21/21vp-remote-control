@@ -111,19 +111,24 @@ class Server:
             shutdown_window = ServerShutdownWindow(self)
             shutdown_window.start()
             return "Server đã tắt"
+        
         elif request == "apps":
             self.handle_list_request(client_socket, False)
+
         elif request == "processus":
             self.handle_list_request(client_socket, True)
+
         elif request.startswith("kill"):
             _, pid_str = request.split(" ", 1)
             pid = int(pid_str)
             response = ProcessManager.kill_process(pid)
             return response
+        
         elif request.startswith("start"):
             _, app_name = request.split(" ", 1)
             response = ProcessManager.start_process(app_name)
             return response
+        
         elif request == "registry patch":
             try:
                 _, patch_file_path = request.split(" ", 1)
@@ -276,9 +281,9 @@ class Server:
     def handle_list_request(self, client_socket, is_process):
         try:
             if is_process:
-                list = ProcessManager.get_running_processus()
+                list = ProcessManager.get_running_processes()
             else:
-                list = ProcessManager.get_running_applications()
+                list = AppManager.get_running_applications()
 
             response = json.dumps(list)
 

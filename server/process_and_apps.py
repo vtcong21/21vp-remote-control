@@ -66,3 +66,31 @@ class ProcessManager:
             error_message = f"Lỗi khi khởi chạy {name}: {str(e)}"
             print(error_message)
             return error_message
+
+class AppManager:
+    @staticmethod
+    def get_running_applications():
+        try:
+            # Sử dụng PowerShell để lấy thông tin về các tiến trình và số luồng
+            powershell_command = "Get-Process | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object ProcessName, Id, Threads | ConvertTo-Json"
+            result = subprocess.run(["powershell", "-Command", powershell_command], capture_output=True, text=True, check=True)
+
+            # Phân tích kết quả JSON
+            processes = json.loads(result.stdout)
+
+            # Tạo danh sách mới chứa thông tin về số luồng của từng tiến trình
+            app_list = []
+
+            for process in processes:
+                process_name = process['ProcessName']
+                pid = process['Id']
+                thread_count = len(process['Threads'])
+
+                # Thêm thông tin vào danh sách mới
+                app_list.append({'ProcessName': process_name, 'PID': pid, 'ThreadCount': thread_count})
+
+            return app_list
+
+        except subprocess.CalledProcessError as e:
+            print(f"Lỗi: {e}")
+            return []

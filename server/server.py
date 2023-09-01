@@ -8,7 +8,7 @@ import subprocess  # Để thực hiện các lệnh hệ thống
 from PIL import ImageGrab  # Để chụp màn hình
 from keylogger import Keylogger  # Module tự viết để ghi nhận các phím được đánh trên máy tính
 from screenshot import Screenshot
-from processus import ProcessManager
+from process_and_apps import ProcessManager, AppManager
 from registry import RegistryManager
 from shutdown import ServerShutdownWindow  # Module tự viết để tạo cửa sổ tắt máy
 import psutil  # Thư viện quản lý thông tin về quá trình và tài nguyên hệ thống
@@ -112,20 +112,18 @@ class Server:
             shutdown_window.start()
             return "Server đã tắt"
         elif request == "apps":
-            # Lấy danh sách các ứng dụng đang chạy trên máy chủ
-            # apps = self.get_running_applications()
-            # return json.dumps(apps)
             self.handle_list_request(client_socket, False)
         elif request == "processus":
             self.handle_list_request(client_socket, True)
-            # return "Progress information has been sent"
         elif request.startswith("kill"):
-                _, pid_str = request.split(" ", 1)
-                pid = int(pid_str)
-                response = ProcessManager.kill_process(pid)
+            _, pid_str = request.split(" ", 1)
+            pid = int(pid_str)
+            response = ProcessManager.kill_process(pid)
+            return response
         elif request.startswith("start"):
-                _, app_name = request.split(" ", 1)
-                response = ProcessManager.start_process(app_name)
+            _, app_name = request.split(" ", 1)
+            response = ProcessManager.start_process(app_name)
+            return response
         elif request == "registry patch":
             try:
                 _, patch_file_path = request.split(" ", 1)
@@ -221,64 +219,68 @@ class Server:
             return "Process not found."
    
     
-    # running process
-    def get_running_processus(self):
-        try:
-            # Sử dụng PowerShell để lấy thông tin về tiến trình và số luồng
-            powershell_command = "Get-Process | Select-Object ProcessName, Id, Threads | ConvertTo-Json"
-            result = subprocess.run(["powershell", "-Command", powershell_command], capture_output=True, text=True, check=True)
+    # # running process
+    # def get_running_processus(self):
+    #     try:
+    #         # Sử dụng PowerShell để lấy thông tin về tiến trình và số luồng
+    #         powershell_command = "Get-Process | Select-Object ProcessName, Id, Threads | ConvertTo-Json"
+    #         result = subprocess.run(["powershell", "-Command", powershell_command], capture_output=True, text=True, check=True)
 
-            # Phân tích kết quả JSON
-            processes = json.loads(result.stdout)
+    #         # Phân tích kết quả JSON
+    #         processes = json.loads(result.stdout)
 
-            # Tạo danh sách mới chứa thông tin về số luồng của từng tiến trình
-            processus = []
+    #         # Tạo danh sách mới chứa thông tin về số luồng của từng tiến trình
+    #         processus = []
 
-            for process in processes:
-                process_name = process['ProcessName']
-                pid = process['Id']
-                thread_count = len(process['Threads'])
+    #         for process in processes:
+    #             process_name = process['ProcessName']
+    #             pid = process['Id']
+    #             thread_count = len(process['Threads'])
         
-                # Thêm thông tin vào danh sách mới
-                processus.append({'ProcessName': process_name, 'PID': pid, 'ThreadCount': thread_count})
+    #             # Thêm thông tin vào danh sách mới
+    #             processus.append({'ProcessName': process_name, 'PID': pid, 'ThreadCount': thread_count})
         
-            return processus
+    #         return processus
 
-        except subprocess.CalledProcessError as e:
-            print(f"Lỗi: {e}")
-            return []
+    #     except subprocess.CalledProcessError as e:
+    #         print(f"Lỗi: {e}")
+    #         return []
         
-    # running apps, same as process
-    def get_running_applications(self):
-        try:
-            # Sử dụng PowerShell để lấy thông tin về tiến trình, tiêu đề cửa sổ chính, và thread count
-            powershell_command = "Get-Process | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object ProcessName, Id, Threads | ConvertTo-Json"
-            result = subprocess.run(["powershell", "-Command", powershell_command], capture_output=True, text=True, check=True)
+    # # running apps, same as process
+    # def get_running_applications(self):
+    #     try:
+    #         # Sử dụng PowerShell để lấy thông tin về tiến trình, tiêu đề cửa sổ chính, và thread count
+    #         powershell_command = "Get-Process | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object ProcessName, Id, Threads | ConvertTo-Json"
+    #         result = subprocess.run(["powershell", "-Command", powershell_command], capture_output=True, text=True, check=True)
 
-            # Phân tích kết quả JSON
-            processes = json.loads(result.stdout)
+    #         # Phân tích kết quả JSON
+    #         processes = json.loads(result.stdout)
 
-            # Tạo danh sách mới chứa thông tin về tiêu đề cửa sổ chính và thread count của từng tiến trình
-            apps_list = []
+    #         # Tạo danh sách mới chứa thông tin về tiêu đề cửa sổ chính và thread count của từng tiến trình
+    #         apps_list = []
 
-            for process in processes:
-                process_name = process['ProcessName']
-                pid = process['Id']
-                thread_count = len(process['Threads'])
+    #         for process in processes:
+    #             process_name = process['ProcessName']
+    #             pid = process['Id']
+    #             thread_count = len(process['Threads'])
 
-                # Thêm thông tin vào danh sách mới
-                apps_list.append({'ProcessName': process_name, 'PID': pid, 'ThreadCount': thread_count})
-            print(apps_list)
-            return apps_list
+    #             # Thêm thông tin vào danh sách mới
+    #             apps_list.append({'ProcessName': process_name, 'PID': pid, 'ThreadCount': thread_count})
+    #         print(apps_list)
+    #         return apps_list
 
-        except subprocess.CalledProcessError as e:
-            print(f"Lỗi: {e}")
-            return []
+    #     except subprocess.CalledProcessError as e:
+    #         print(f"Lỗi: {e}")
+    #         return []
 
     def handle_list_request(self, client_socket, is_process):
         try:
-            processes = self.get_running_processus()
-            response = json.dumps(processes)
+            if is_process:
+                list = ProcessManager.get_running_processus()
+            else:
+                list = ProcessManager.get_running_applications()
+
+            response = json.dumps(list)
 
             # Chia dữ liệu thành các gói tin có kích thước nhỏ
             chunk_size = 1024  # Kích thước mỗi gói tin

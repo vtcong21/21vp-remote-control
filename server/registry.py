@@ -40,6 +40,7 @@ class RegistryManager:
     def delete_registry_value(key_path, value_name):
         try:
             # Sử dụng subprocess để chạy reg delete để xóa giá trị khỏi Registry
+            
             command = f'reg delete "{key_path}" /v "{value_name}" /f'
             result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
@@ -75,6 +76,7 @@ class RegistryManager:
     @staticmethod
     def delete_registry_key(key_path):
         try:
+            print(key_path)
             # Sử dụng subprocess để chạy reg delete để xóa khóa khỏi Registry
             command = f'reg delete "{key_path}" /f'
             result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

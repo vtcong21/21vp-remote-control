@@ -161,19 +161,22 @@ class Server:
             except ValueError:
                 return "Invalid delete request."
 
-        elif request.startswith("create_key"):
+        elif request.startswith("key_create"):
             try:
                 _, key_path = request.split(" ", 1)
+                
                 result = RegistryManager.create_registry_key(key_path)
                 return result
             except ValueError:
                 return "Invalid create_key request."
 
-        elif request.startswith("delete_key"):
+        elif request.startswith("key_delete"):
             try:
+                
                 _, key_path = request.split(" ", 1)
                 result = RegistryManager.delete_registry_key(key_path)
                 return result
+                
             except ValueError:
                 return "Invalid delete_key request."
         else:

@@ -19,12 +19,12 @@ class Registry:
         return response
     
     def create_key(self, key_path):
-        request = f"create_key {key_path}"
+        request = f"key_create {key_path}"
         response = self.send_request(request)
         return response
     
     def delete_key(self, key_path):
-        request = f"delete_key {key_path}"
+        request = f"key_delete {key_path}"
         response = self.send_request(request)
         return response
     

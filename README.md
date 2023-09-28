@@ -17,7 +17,7 @@ Project is written in Python with:
 ## Setup
 To run this project, you will need two computer connected to the same network. One will serve as the server, and the other one will act as the client. If necessary, you can use virtual machines for this purpose.
 
-## Prerequisites
+### Prerequisites
 Make sure both machines have the necessary dependencies installed. The required libraries are listed in the `requirements.txt` file. You can install them using the following command:
 ```
 pip install -r requirements.txt

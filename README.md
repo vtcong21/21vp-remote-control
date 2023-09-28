@@ -13,7 +13,7 @@ Project is written in Python with:
 * psutil 5.9.5
 * pygetwindow 0.0.9 
 * socket, threading and required libraries
-* 
+
 ## Setup
 To run this project, you will need two computer connected to the same network. One will serve as the server, and the other one will act as the client. If necessary, you can use virtual machines for this purpose.
 

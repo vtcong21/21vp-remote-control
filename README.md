@@ -3,8 +3,9 @@
 * [Technologies](#technologies)
 * [Setup](#setup)
 
-## General info
+## General information
 This project is about a remote control application.
+The application is designed for remote control and includes several features such as keylogger, screen capture, registry editing, etc. We emphasize on threading and communication between two computers in the same network.
 	
 ## Technologies
 Project is written in Python with:
